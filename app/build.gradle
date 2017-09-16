@@ -20,10 +20,10 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    /*compileOptions {
+    compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-    }*/
+    }
 
     buildTypes {
         release {
@@ -58,6 +58,12 @@ dependencies {
     // Annotations Libraries
     provided deps.lombok
     annotationProcessor deps.lombok
+
+    // Networking
+    compile deps.retrofit2
+    compile deps.gsonConverter
+    compile deps.rxJavaAdapter
+    compile deps.logInterceptor
 
     compile deps.butterKnife
     annotationProcessor deps.butterKnifeCompiler

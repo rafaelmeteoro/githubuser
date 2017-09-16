@@ -23,3 +23,19 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+##--------------- Begin: Our library --------------
+-keepattributes Exceptions, InnerClasses, Signature, Deprecated, SourceFile, LineNumberTable, EnclosingMethod
+-keepattributes *Annotation*
+
+-keepparameternames
+
+# Fix deploy issue with lambdas
+-dontwarn **$$Lambda$*
+
+# Remove MultiStateView warn
+-dontnote com.kennyc.view.MultiStateView.**
+
+-dontwarn com.trello.rxlifecycle.**
+-dontwarn retrofit2.**
+-dontwarn com.burgstaller.okhttp.**
+-dontwarn java.lang.invoke.**
