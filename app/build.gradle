@@ -42,6 +42,7 @@ dependencies {
     // Support Libraries
     compile deps.appCompat
     compile deps.cardViewCompat
+    compile deps.designCompat
     compile deps.supportAnnotations
     compile deps.multidex
     compile deps.constraintLayout
@@ -97,6 +98,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-v4'
         exclude group: 'com.android.support', module: 'recyclerview-v7'
         exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.android.support', module: 'design'
     })
 
     testCompile deps.jUnit
