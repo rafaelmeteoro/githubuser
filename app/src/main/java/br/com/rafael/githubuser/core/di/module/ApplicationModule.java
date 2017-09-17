@@ -5,6 +5,8 @@ import android.content.Context;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import br.com.rafael.githubuser.core.di.qualifers.IOScheduler;
+import br.com.rafael.githubuser.core.di.qualifers.UIScheduler;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
@@ -28,14 +30,14 @@ public class ApplicationModule {
 
     @Provides
     @Singleton
-    @Named("mainThreadScheduler")
+    @UIScheduler
     Scheduler providesMainThreadScheduler() {
         return AndroidSchedulers.mainThread();
     }
 
     @Provides
     @Singleton
-    @Named("jobScheduler")
+    @IOScheduler
     Scheduler providesJobScheduler() {
         return Schedulers.io();
     }
