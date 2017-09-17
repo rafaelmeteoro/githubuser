@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">GithubUser</string>
     <string name="api_host">https://api.github.com</string>
+
+    <!-- View state -->
+    <string name="error_loading_user">Erro ao buscar usuário</string>
+    <string name="error_tap_to_retry">Clique para recarregar</string>
+
+    <string name="user_title">Usuário</string>
+
 </resources>

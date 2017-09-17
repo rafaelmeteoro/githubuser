@@ -1,7 +1,5 @@
 package br.com.rafael.githubuser.user.presentation;
 
-import android.util.Log;
-
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
@@ -25,11 +23,16 @@ public class UserPresenter implements UserContract.Presenter {
 
     @Override
     public void initialize() {
+        view.showUserLoading();
+
         Subscription subscription = getUser.getUser()
                 .subscribe(githubUser -> {
-                    Log.d("UserPresenter", "Ok");
+                    view.showUser();
+                    view.showLogin(githubUser.getLogin());
+                    view.showName(githubUser.getName());
+                    view.showLocation(githubUser.getLocation());
                 }, error -> {
-                    Log.d("UserPresenter", "NOT OK");
+                    view.showUserError();
                     error.printStackTrace();
                 });
         automaticUnsubscriber.add(subscription);
