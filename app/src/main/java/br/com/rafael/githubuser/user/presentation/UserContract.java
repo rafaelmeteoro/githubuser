@@ -16,6 +16,6 @@ public interface UserContract {
     }
 
     interface Presenter {
-        void initialize();
+        void initialize(String username);
     }
 }

@@ -4,5 +4,5 @@ import br.com.rafael.githubuser.user.data.models.GithubUser;
 import rx.Observable;
 
 public interface GetUser {
-    Observable<GithubUser> getUser();
+    Observable<GithubUser> getUser(String username);
 }

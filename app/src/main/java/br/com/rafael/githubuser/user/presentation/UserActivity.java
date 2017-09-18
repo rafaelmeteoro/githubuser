@@ -1,6 +1,9 @@
 package br.com.rafael.githubuser.user.presentation;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
@@ -18,6 +21,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class UserActivity extends BaseActivity implements UserContract.View {
+
+    private static final String KEY_USERNAME = "key_username";
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -73,7 +78,8 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         if (shouldInitializeFromState) {
 
         } else {
-            presenter.initialize();
+            String username = getIntent().getStringExtra(KEY_USERNAME);
+            presenter.initialize(username);
         }
     }
 
@@ -105,5 +111,27 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     @Override
     public void showLocation(String location) {
         txtLocation.setText(location);
+    }
+
+    public static class IntentBuilder {
+
+        private Intent intent;
+
+        private IntentBuilder(Context context) {
+            intent = new Intent(context, UserActivity.class);
+        }
+
+        public static IntentBuilder builder(@NonNull Context context) {
+            return new IntentBuilder(context);
+        }
+
+        public Intent create() {
+            return intent;
+        }
+
+        public IntentBuilder username(@NonNull String username) {
+            intent.putExtra(KEY_USERNAME, username);
+            return this;
+        }
     }
 }
