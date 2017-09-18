@@ -22,10 +22,10 @@ public class UserPresenter implements UserContract.Presenter {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(String username) {
         view.showUserLoading();
 
-        Subscription subscription = getUser.getUser()
+        Subscription subscription = getUser.getUser(username)
                 .subscribe(githubUser -> {
                     view.showUser();
                     view.showLogin(githubUser.getLogin());
