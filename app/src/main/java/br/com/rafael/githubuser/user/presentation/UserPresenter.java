@@ -3,6 +3,7 @@ package br.com.rafael.githubuser.user.presentation;
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
+import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.domain.interactor.GetUser;
 import rx.Subscription;
 
@@ -26,15 +27,25 @@ public class UserPresenter implements UserContract.Presenter {
         view.showUserLoading();
 
         Subscription subscription = getUser.getUser(username)
-                .subscribe(githubUser -> {
-                    view.showUser();
-                    view.showLogin(githubUser.getLogin());
-                    view.showName(githubUser.getName());
-                    view.showLocation(githubUser.getLocation());
-                }, error -> {
-                    view.showUserError();
-                    error.printStackTrace();
-                });
+                .subscribe(this::setGithubUser,
+                        error -> {
+                            view.showUserError();
+                            error.printStackTrace();
+                        });
         automaticUnsubscriber.add(subscription);
+    }
+
+    @Override
+    public void initializeFromState(GithubUser githubUser) {
+        setGithubUser(githubUser);
+    }
+
+    private void setGithubUser(GithubUser githubUser) {
+        view.showUser();
+        view.setUser(githubUser);
+        view.showPhoto(githubUser.getAvatarUrl());
+        view.showLogin(githubUser.getLogin());
+        view.showName(githubUser.getName());
+        view.showLocation(githubUser.getLocation());
     }
 }

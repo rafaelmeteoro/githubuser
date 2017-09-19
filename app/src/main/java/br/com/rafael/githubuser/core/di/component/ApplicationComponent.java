@@ -2,7 +2,6 @@ package br.com.rafael.githubuser.core.di.component;
 
 import android.content.Context;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import br.com.rafael.githubuser.core.di.module.ApplicationModule;
