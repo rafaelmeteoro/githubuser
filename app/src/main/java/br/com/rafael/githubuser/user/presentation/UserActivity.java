@@ -6,19 +6,24 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.kennyc.view.MultiStateView;
+import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.application.GithubUserApplication;
 import br.com.rafael.githubuser.core.view.BaseActivity;
+import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.di.DaggerUserComponent;
 import br.com.rafael.githubuser.user.di.UserModule;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import icepick.State;
 
 public class UserActivity extends BaseActivity implements UserContract.View {
 
@@ -30,17 +35,23 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     @BindView(R.id.state_view)
     MultiStateView stateView;
 
-    @BindView(R.id.text_login)
+    @BindView(R.id.photo_avatar)
+    ImageView photoAvatar;
+
+    @BindView(R.id.login_text)
     TextView txtLogin;
 
-    @BindView(R.id.text_name)
+    @BindView(R.id.name_text)
     TextView txtName;
 
-    @BindView(R.id.text_location)
+    @BindView(R.id.location_text)
     TextView txtLocation;
 
     @Inject
     UserContract.Presenter presenter;
+
+    @State
+    GithubUser githubUser;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +72,7 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     private void setUpToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.user_title);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void inject() {
@@ -76,11 +88,25 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
-
+            presenter.initializeFromState(githubUser);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
             presenter.initialize(username);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void setUser(GithubUser githubUser) {
+        this.githubUser = githubUser;
     }
 
     @Override
@@ -96,6 +122,13 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     @Override
     public void showUserError() {
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
+    }
+
+    @Override
+    public void showPhoto(String photoUrl) {
+        Picasso.with(this)
+                .load(photoUrl)
+                .into(photoAvatar);
     }
 
     @Override
