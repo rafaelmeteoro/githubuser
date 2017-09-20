@@ -6,7 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.data.repository.GitHubRepository;
+import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -21,7 +21,7 @@ public class GetUserImplTest {
     GetUser useCase;
 
     @Mock
-    GitHubRepository gitHubApi;
+    GithubUserRepository gitHubApi;
 
     @Mock
     GithubUser githubUser;

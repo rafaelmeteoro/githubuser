@@ -5,11 +5,11 @@ import br.com.rafael.githubuser.core.client.AuthenticationType;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
 import rx.Observable;
 
-public class GithubRepositoryImpl implements GitHubRepository {
+public class GithubUserRepositoryImpl implements GithubUserRepository {
 
     private GithubUserApi api;
 
-    public GithubRepositoryImpl(String host) {
+    public GithubUserRepositoryImpl(String host) {
         api = new ApiClientUtil.Builder()
                 .authentication(AuthenticationType.DIGEST)
                 .log(true)

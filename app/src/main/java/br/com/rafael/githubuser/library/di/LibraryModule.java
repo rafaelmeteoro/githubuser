@@ -5,8 +5,10 @@ import android.content.Context;
 import javax.inject.Singleton;
 
 import br.com.rafael.githubuser.R;
-import br.com.rafael.githubuser.user.data.repository.GitHubRepository;
-import br.com.rafael.githubuser.user.data.repository.GithubRepositoryImpl;
+import br.com.rafael.githubuser.followers.data.repository.GithubFollowerRepository;
+import br.com.rafael.githubuser.followers.data.repository.GithubFollowerRepositoryImpl;
+import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
+import br.com.rafael.githubuser.user.data.repository.GithubUserRepositoryImpl;
 import dagger.Module;
 import dagger.Provides;
 
@@ -21,7 +23,13 @@ public class LibraryModule {
 
     @Provides
     @Singleton
-    GitHubRepository providesGitHubRepository() {
-        return new GithubRepositoryImpl(context.getString(R.string.api_host));
+    GithubUserRepository providesGitHubRepository() {
+        return new GithubUserRepositoryImpl(context.getString(R.string.api_host));
+    }
+
+    @Provides
+    @Singleton
+    GithubFollowerRepository providesGithubFollowerRepository() {
+        return new GithubFollowerRepositoryImpl(context.getString(R.string.api_host));
     }
 }

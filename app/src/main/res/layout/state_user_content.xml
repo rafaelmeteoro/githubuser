@@ -16,11 +16,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@color/state_empty_icon" />
+        app:srcCompat="@color/state_empty_icon"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
     <TextView
         android:id="@+id/login_label"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
@@ -30,22 +32,26 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/photo_avatar"
-        tools:text="Login" />
+        tools:text="Login"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/login_text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_label" />
+        app:layout_constraintTop_toBottomOf="@+id/login_label"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/name_label"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
@@ -54,22 +60,26 @@
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_text" />
+        app:layout_constraintTop_toBottomOf="@+id/login_text"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/name_text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_label" />
+        app:layout_constraintTop_toBottomOf="@+id/name_label"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/location_label"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
@@ -78,17 +88,33 @@
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_text" />
+        app:layout_constraintTop_toBottomOf="@+id/name_text"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <TextView
         android:id="@+id/location_text"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/location_label" />
+        app:layout_constraintTop_toBottomOf="@+id/location_label"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <Button
+        android:id="@+id/button_followers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="32dp"
+        android:text="Followers"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/location_text" />
 
 </android.support.constraint.ConstraintLayout>

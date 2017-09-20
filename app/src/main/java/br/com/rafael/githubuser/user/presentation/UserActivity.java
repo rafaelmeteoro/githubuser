@@ -18,11 +18,13 @@ import javax.inject.Inject;
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.application.GithubUserApplication;
 import br.com.rafael.githubuser.core.view.BaseActivity;
+import br.com.rafael.githubuser.followers.presentation.FollowersActivity;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.di.DaggerUserComponent;
 import br.com.rafael.githubuser.user.di.UserModule;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import icepick.State;
 
 public class UserActivity extends BaseActivity implements UserContract.View {
@@ -102,6 +104,15 @@ public class UserActivity extends BaseActivity implements UserContract.View {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @OnClick(R.id.button_followers)
+    public void onClickFollowers() {
+        Intent intent = FollowersActivity.IntentBuilder
+                .builder(this)
+                .username(githubUser.getLogin())
+                .create();
+        startActivity(intent);
     }
 
     @Override
