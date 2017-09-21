@@ -1,5 +1,6 @@
 package br.com.rafael.githubuser.followers.presentation.adapter;
 
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +13,15 @@ import com.squareup.picasso.Picasso;
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.core.adapter.AdapterDelegate;
 import br.com.rafael.githubuser.followers.data.models.Follower;
+import br.com.rafael.githubuser.followers.presentation.data.RightFollowerClickData;
+import br.com.rafael.githubuser.followers.presentation.listener.OnRightFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class RightFollowerAdapterDelegate implements AdapterDelegate<FollowersViewModelHolder> {
+
+    private OnRightFollowerClickListener listener;
 
     @Override
     public boolean isViewForData(FollowersViewModelHolder data, int position) {
@@ -36,6 +41,9 @@ public class RightFollowerAdapterDelegate implements AdapterDelegate<FollowersVi
         ViewHolder viewHolder = (ViewHolder) holder;
         viewHolder.textLogin.setText(follower.getLogin());
         viewHolder.textUrl.setText(follower.getUrl());
+        viewHolder.itemView.setOnClickListener(
+                view -> callOnFollowerClickIfNotNull(follower));
+
         Picasso.with(viewHolder.itemView.getContext())
                 .load(follower.getAvatarUrl())
                 .into(viewHolder.imageAvatar);
@@ -43,6 +51,19 @@ public class RightFollowerAdapterDelegate implements AdapterDelegate<FollowersVi
 
     private Follower getItem(FollowersViewModelHolder holder, int position) {
         return holder.getViewModels().get(position);
+    }
+
+    private void callOnFollowerClickIfNotNull(Follower follower) {
+        if (listener != null) {
+            listener.onClick(
+                    new RightFollowerClickData()
+                            .url(follower.getHtmlUrl())
+            );
+        }
+    }
+
+    public void setOnFollowerClickListener(@Nullable OnRightFollowerClickListener listener) {
+        this.listener = listener;
     }
 
     protected class ViewHolder extends RecyclerView.ViewHolder {

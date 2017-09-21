@@ -2,9 +2,11 @@ package br.com.rafael.githubuser.followers.presentation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +22,10 @@ import br.com.rafael.githubuser.core.view.BaseActivity;
 import br.com.rafael.githubuser.followers.di.DaggerFollowersComponent;
 import br.com.rafael.githubuser.followers.di.FollowersModule;
 import br.com.rafael.githubuser.followers.presentation.adapter.FollowersAdapter;
+import br.com.rafael.githubuser.followers.presentation.data.LeftFollowerClickData;
+import br.com.rafael.githubuser.followers.presentation.data.RightFollowerClickData;
+import br.com.rafael.githubuser.followers.presentation.listener.OnLeftFollowerClickListener;
+import br.com.rafael.githubuser.followers.presentation.listener.OnRightFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,6 +52,24 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
 
     @State
     FollowersViewModelHolder holder;
+
+    private OnLeftFollowerClickListener onLeftFollowerClickListener =
+            this::handleLeftFollowerClick;
+
+    private OnRightFollowerClickListener onRightFollowerClickListener =
+            this::handleRightFollowerClick;
+
+    private void handleLeftFollowerClick(LeftFollowerClickData data) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(data.url()));
+        startActivity(intent);
+    }
+
+    private void handleRightFollowerClick(RightFollowerClickData data) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(data.url()));
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,6 +105,8 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
     private void initializeViews() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
+        adapter.setLeftFollowerClickListener(onLeftFollowerClickListener);
+        adapter.setRightFollowerClickListener(onRightFollowerClickListener);
         stateView.setAnimateLayoutChanges(true);
     }
 

@@ -1,12 +1,15 @@
 package br.com.rafael.githubuser.followers.presentation.adapter;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.adapter.AdapterDelegateManager;
+import br.com.rafael.githubuser.followers.presentation.listener.OnLeftFollowerClickListener;
+import br.com.rafael.githubuser.followers.presentation.listener.OnRightFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
 
 public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -31,6 +34,14 @@ public class FollowersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void setData(@NonNull FollowersViewModelHolder data) {
         this.data = data;
         notifyDataSetChanged();
+    }
+
+    public void setLeftFollowerClickListener(@Nullable OnLeftFollowerClickListener listener) {
+        leftFollowerAdapterDelegate.setOnFollowerClickListener(listener);
+    }
+
+    public void setRightFollowerClickListener(@Nullable OnRightFollowerClickListener listener) {
+        rightFollowerAdapterDelegate.setOnFollowerClickListener(listener);
     }
 
     @Override

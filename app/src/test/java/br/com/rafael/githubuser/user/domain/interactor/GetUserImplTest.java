@@ -21,7 +21,7 @@ public class GetUserImplTest {
     GetUser useCase;
 
     @Mock
-    GithubUserRepository gitHubApi;
+    GithubUserRepository githubUserRepository;
 
     @Mock
     GithubUser githubUser;
@@ -32,12 +32,12 @@ public class GetUserImplTest {
         useCase = new GetUserImpl(
                 Schedulers.immediate(),
                 Schedulers.immediate(),
-                gitHubApi);
+                githubUserRepository);
     }
 
     @Test
     public void getUser() throws Exception {
-        when(gitHubApi.getUser(any()))
+        when(githubUserRepository.getUser(any()))
                 .thenReturn(Observable.just(githubUser));
 
         TestSubscriber<GithubUser> subscriber = new TestSubscriber<>();
