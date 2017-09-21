@@ -1,7 +1,7 @@
 package br.com.rafael.githubuser.core.lifecycle;
 
 import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 
 import javax.inject.Inject;
@@ -14,7 +14,7 @@ public class LifecycleUnsubscriber implements AutomaticUnsubscriber {
     private CompositeSubscription subscription;
 
     @Inject
-    public LifecycleUnsubscriber(LifecycleRegistryOwner owner) {
+    public LifecycleUnsubscriber(LifecycleOwner owner) {
         subscription = new CompositeSubscription();
         owner.getLifecycle().addObserver(this);
     }
