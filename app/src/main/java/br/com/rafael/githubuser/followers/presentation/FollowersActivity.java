@@ -1,33 +1,37 @@
-package br.com.rafael.githubuser.user.presentation;
+package br.com.rafael.githubuser.followers.presentation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.kennyc.view.MultiStateView;
-import com.squareup.picasso.Picasso;
 
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.application.GithubUserApplication;
 import br.com.rafael.githubuser.core.view.BaseActivity;
-import br.com.rafael.githubuser.followers.presentation.FollowersActivity;
-import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.di.DaggerUserComponent;
-import br.com.rafael.githubuser.user.di.UserModule;
+import br.com.rafael.githubuser.followers.di.DaggerFollowersComponent;
+import br.com.rafael.githubuser.followers.di.FollowersModule;
+import br.com.rafael.githubuser.followers.presentation.adapter.FollowersAdapter;
+import br.com.rafael.githubuser.followers.presentation.data.LeftFollowerClickData;
+import br.com.rafael.githubuser.followers.presentation.data.RightFollowerClickData;
+import br.com.rafael.githubuser.followers.presentation.listener.OnLeftFollowerClickListener;
+import br.com.rafael.githubuser.followers.presentation.listener.OnRightFollowerClickListener;
+import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import icepick.State;
 
-public class UserActivity extends BaseActivity implements UserContract.View {
+public class FollowersActivity extends BaseActivity implements FollowersContract.View {
 
     private static final String KEY_USERNAME = "key_username";
 
@@ -37,28 +41,40 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     @BindView(R.id.state_view)
     MultiStateView stateView;
 
-    @BindView(R.id.photo_avatar)
-    ImageView photoAvatar;
-
-    @BindView(R.id.login_text)
-    TextView txtLogin;
-
-    @BindView(R.id.name_text)
-    TextView txtName;
-
-    @BindView(R.id.location_text)
-    TextView txtLocation;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
 
     @Inject
-    UserContract.Presenter presenter;
+    FollowersContract.Presenter presenter;
+
+    @Inject
+    FollowersAdapter adapter;
 
     @State
-    GithubUser githubUser;
+    FollowersViewModelHolder holder;
+
+    private OnLeftFollowerClickListener onLeftFollowerClickListener =
+            this::handleLeftFollowerClick;
+
+    private OnRightFollowerClickListener onRightFollowerClickListener =
+            this::handleRightFollowerClick;
+
+    private void handleLeftFollowerClick(LeftFollowerClickData data) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(data.url()));
+        startActivity(intent);
+    }
+
+    private void handleRightFollowerClick(RightFollowerClickData data) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(data.url()));
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user);
+        setContentView(R.layout.activity_followers);
 
         bindViews();
         setUpToolbar();
@@ -73,28 +89,32 @@ public class UserActivity extends BaseActivity implements UserContract.View {
 
     private void setUpToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.user_title);
+        getSupportActionBar().setTitle(R.string.followers_title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void initializeViews() {
-        stateView.setAnimateLayoutChanges(true);
-    }
-
     private void inject() {
-        DaggerUserComponent
+        DaggerFollowersComponent
                 .builder()
                 .libraryComponent(GithubUserApplication.get(this).getComponent())
-                .userModule(new UserModule(this))
+                .followersModule(new FollowersModule(this))
                 .build()
                 .inject(this);
+    }
+
+    private void initializeViews() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+        adapter.setLeftFollowerClickListener(onLeftFollowerClickListener);
+        adapter.setRightFollowerClickListener(onRightFollowerClickListener);
+        stateView.setAnimateLayoutChanges(true);
     }
 
     private void initializeContents(@Nullable Bundle savedState) {
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
-            presenter.initializeFromState(githubUser);
+            presenter.initializeFromState(holder);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
             presenter.initialize(username);
@@ -110,55 +130,23 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         return super.onOptionsItemSelected(item);
     }
 
-    @OnClick(R.id.button_followers)
-    public void onClickFollowers() {
-        Intent intent = FollowersActivity.IntentBuilder
-                .builder(this)
-                .username(githubUser.getLogin())
-                .create();
-        startActivity(intent);
-    }
-
     @Override
-    public void setUser(GithubUser githubUser) {
-        this.githubUser = githubUser;
-    }
+    public void showFollowers(FollowersViewModelHolder holder) {
+        this.holder = holder;
 
-    @Override
-    public void showUser() {
         stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+        adapter.setData(holder);
+        recyclerView.setAdapter(adapter);
     }
 
     @Override
-    public void showUserLoading() {
+    public void showFollowersLoading() {
         stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
     }
 
     @Override
-    public void showUserError() {
+    public void showFollowersError() {
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
-    }
-
-    @Override
-    public void showPhoto(String photoUrl) {
-        Picasso.with(this)
-                .load(photoUrl)
-                .into(photoAvatar);
-    }
-
-    @Override
-    public void showLogin(String login) {
-        txtLogin.setText(login);
-    }
-
-    @Override
-    public void showName(String name) {
-        txtName.setText(name);
-    }
-
-    @Override
-    public void showLocation(String location) {
-        txtLocation.setText(location);
     }
 
     public static class IntentBuilder {
@@ -166,7 +154,7 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         private Intent intent;
 
         private IntentBuilder(Context context) {
-            intent = new Intent(context, UserActivity.class);
+            intent = new Intent(context, FollowersActivity.class);
         }
 
         public static IntentBuilder builder(@NonNull Context context) {

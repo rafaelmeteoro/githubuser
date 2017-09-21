@@ -7,7 +7,8 @@ import javax.inject.Singleton;
 import br.com.rafael.githubuser.core.di.module.ApplicationModule;
 import br.com.rafael.githubuser.core.di.qualifers.IOScheduler;
 import br.com.rafael.githubuser.core.di.qualifers.UIScheduler;
-import br.com.rafael.githubuser.user.data.repository.GitHubRepository;
+import br.com.rafael.githubuser.followers.data.repository.GithubFollowerRepository;
+import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
 import dagger.Component;
 import rx.Scheduler;
 
@@ -22,5 +23,7 @@ public interface LibraryComponent {
     @UIScheduler
     Scheduler uiScheduler();
 
-    GitHubRepository githubRepository();
+    GithubUserRepository githubUserRepository();
+
+    GithubFollowerRepository githubFollowerRepository();
 }

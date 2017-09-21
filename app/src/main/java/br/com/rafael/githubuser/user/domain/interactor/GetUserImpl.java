@@ -5,30 +5,28 @@ import javax.inject.Inject;
 import br.com.rafael.githubuser.core.di.qualifers.IOScheduler;
 import br.com.rafael.githubuser.core.di.qualifers.UIScheduler;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.data.repository.GitHubRepository;
+import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
 import rx.Observable;
 import rx.Scheduler;
 
 public class GetUserImpl implements GetUser {
 
-    private static final String GITHUB_USERNAME = "rafaelmeteoro";
-
     private Scheduler ioScheduler;
     private Scheduler uiScheduler;
-    private GitHubRepository gitHubApi;
+    private GithubUserRepository githubUserRepository;
 
     @Inject
     public GetUserImpl(@IOScheduler Scheduler ioScheduler,
                        @UIScheduler Scheduler uiScheduler,
-                       GitHubRepository gitHubApi) {
+                       GithubUserRepository githubUserRepository) {
         this.ioScheduler = ioScheduler;
         this.uiScheduler = uiScheduler;
-        this.gitHubApi = gitHubApi;
+        this.githubUserRepository = githubUserRepository;
     }
 
     @Override
     public Observable<GithubUser> getUser(String username) {
-        return gitHubApi.getUser(username)
+        return githubUserRepository.getUser(username)
                 .observeOn(uiScheduler)
                 .subscribeOn(ioScheduler);
     }
