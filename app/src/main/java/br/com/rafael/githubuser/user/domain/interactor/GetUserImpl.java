@@ -13,20 +13,20 @@ public class GetUserImpl implements GetUser {
 
     private Scheduler ioScheduler;
     private Scheduler uiScheduler;
-    private GithubUserRepository gitHubApi;
+    private GithubUserRepository githubUserRepository;
 
     @Inject
     public GetUserImpl(@IOScheduler Scheduler ioScheduler,
                        @UIScheduler Scheduler uiScheduler,
-                       GithubUserRepository gitHubApi) {
+                       GithubUserRepository githubUserRepository) {
         this.ioScheduler = ioScheduler;
         this.uiScheduler = uiScheduler;
-        this.gitHubApi = gitHubApi;
+        this.githubUserRepository = githubUserRepository;
     }
 
     @Override
     public Observable<GithubUser> getUser(String username) {
-        return gitHubApi.getUser(username)
+        return githubUserRepository.getUser(username)
                 .observeOn(uiScheduler)
                 .subscribeOn(ioScheduler);
     }

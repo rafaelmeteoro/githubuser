@@ -63,18 +63,22 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         bindViews();
         setUpToolbar();
         inject();
+        initializeViews();
         initializeContents(savedInstanceState);
     }
 
     private void bindViews() {
         ButterKnife.bind(this);
-        stateView.setAnimateLayoutChanges(true);
     }
 
     private void setUpToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.user_title);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void initializeViews() {
+        stateView.setAnimateLayoutChanges(true);
     }
 
     private void inject() {

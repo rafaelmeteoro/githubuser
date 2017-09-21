@@ -5,6 +5,8 @@ import android.arch.lifecycle.LifecycleRegistryOwner;
 import br.com.rafael.githubuser.core.di.PerActivity;
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
 import br.com.rafael.githubuser.core.lifecycle.LifecycleUnsubscriber;
+import br.com.rafael.githubuser.followers.domain.interactor.GetFollowers;
+import br.com.rafael.githubuser.followers.domain.interactor.GetFollowersImpl;
 import br.com.rafael.githubuser.followers.presentation.FollowersActivity;
 import br.com.rafael.githubuser.followers.presentation.FollowersContract;
 import br.com.rafael.githubuser.followers.presentation.FollowersPresenter;
@@ -41,6 +43,12 @@ public class FollowersModule {
     @Provides
     @PerActivity
     AutomaticUnsubscriber automaticUnsubscriber(LifecycleUnsubscriber impl) {
+        return impl;
+    }
+
+    @Provides
+    @PerActivity
+    GetFollowers getFollowers(GetFollowersImpl impl) {
         return impl;
     }
 }

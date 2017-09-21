@@ -93,6 +93,10 @@ public class Follower implements Parcelable {
     @SerializedName("site_admin")
     boolean siteAdmin;
 
+    @Getter
+    @Setter
+    boolean isLeft;
+
     @Override
     public int describeContents() {
         return 0;
