@@ -60,8 +60,8 @@ public class UserPresenterTest {
 
     @Test
     public void initializePresenter_shouldDisplayError() {
-       when(getUser.getUser(any()))
-               .thenReturn(Observable.error(mock(RetrofitException.class)));
+        when(getUser.getUser(any()))
+                .thenReturn(Observable.error(mock(RetrofitException.class)));
 
         presenter.initialize(any());
 
@@ -82,11 +82,10 @@ public class UserPresenterTest {
     }
 
     private GithubUser githubUser() {
-        GithubUser githubUser = new GithubUser();
-        githubUser.setAvatarUrl("avatar_url");
-        githubUser.setLogin("login");
-        githubUser.setName("name");
-        githubUser.setLocation("location");
-        return githubUser;
+        return new GithubUser()
+                .avatarUrl("avatar_url")
+                .login("login")
+                .name("name")
+                .location("location");
     }
 }

@@ -18,7 +18,6 @@ import rx.schedulers.Schedulers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class GetFollowersImplTest {
@@ -54,13 +53,12 @@ public class GetFollowersImplTest {
         assertThat(holder.getViewModels().size(), is(expectedSize));
     }
 
-    List<Follower> createFollowers(int size) {
+    private List<Follower> createFollowers(int size) {
         List<Follower> followers = new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
-            Follower follower = new Follower();
-            follower.setId(i);
-            followers.add(follower);
+            followers.add(new Follower()
+                    .id(i));
         }
 
         return followers;

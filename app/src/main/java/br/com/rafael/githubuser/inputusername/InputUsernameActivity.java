@@ -24,10 +24,15 @@ public class InputUsernameActivity extends BaseActivity {
         setContentView(R.layout.activity_input_username);
 
         bindViews();
+        initEdit();
     }
 
     private void bindViews() {
         ButterKnife.bind(this);
+    }
+
+    private void initEdit() {
+        inputUsername.setText("rafaelmeteoro");
     }
 
     @OnClick(R.id.confirmar)

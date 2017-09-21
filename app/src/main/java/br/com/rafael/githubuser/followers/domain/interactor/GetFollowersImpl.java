@@ -43,7 +43,7 @@ public class GetFollowersImpl implements GetFollowers {
     }
 
     private Follower mapper(Follower follower) {
-        follower.setLeft((follower.getId() % 2) == 0);
+        follower.isLeft((follower.id() % 2) == 0);
         return follower;
     }
 
