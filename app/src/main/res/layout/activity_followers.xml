@@ -23,12 +23,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:msv_errorView="@layout/state_user_error"
-        app:msv_loadingView="@layout/state_user_loading"
+        app:msv_errorView="@layout/state_followers_error"
+        app:msv_loadingView="@layout/state_followers_loading"
         app:msv_viewState="content">
 
         <include
-            layout="@layout/state_user_content"
+            layout="@layout/state_followers_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

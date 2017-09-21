@@ -6,7 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.data.repository.GitHubRepository;
+import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
@@ -21,7 +21,7 @@ public class GetUserImplTest {
     GetUser useCase;
 
     @Mock
-    GitHubRepository gitHubApi;
+    GithubUserRepository githubUserRepository;
 
     @Mock
     GithubUser githubUser;
@@ -32,12 +32,12 @@ public class GetUserImplTest {
         useCase = new GetUserImpl(
                 Schedulers.immediate(),
                 Schedulers.immediate(),
-                gitHubApi);
+                githubUserRepository);
     }
 
     @Test
     public void getUser() throws Exception {
-        when(gitHubApi.getUser(any()))
+        when(githubUserRepository.getUser(any()))
                 .thenReturn(Observable.just(githubUser));
 
         TestSubscriber<GithubUser> subscriber = new TestSubscriber<>();

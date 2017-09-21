@@ -71,10 +71,8 @@ public class UserPresenterTest {
 
     @Test
     public void initializeFromStatePresenter_shouldDisplayUser() {
-        when(getUser.getUser(any()))
-                .thenReturn(Observable.just(mock(GithubUser.class)));
-
         presenter.initializeFromState(githubUser());
+
         verify(view).showUser();
         verify(view).setUser(any());
         verify(view).showPhoto(any());
