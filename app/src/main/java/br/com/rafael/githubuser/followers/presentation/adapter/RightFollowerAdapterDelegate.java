@@ -39,13 +39,13 @@ public class RightFollowerAdapterDelegate implements AdapterDelegate<FollowersVi
     public void onBindViewHolder(FollowersViewModelHolder data, int position, RecyclerView.ViewHolder holder) {
         Follower follower = getItem(data, position);
         ViewHolder viewHolder = (ViewHolder) holder;
-        viewHolder.textLogin.setText(follower.getLogin());
-        viewHolder.textUrl.setText(follower.getUrl());
+        viewHolder.textLogin.setText(follower.login());
+        viewHolder.textUrl.setText(follower.url());
         viewHolder.itemView.setOnClickListener(
                 view -> callOnFollowerClickIfNotNull(follower));
 
         Picasso.with(viewHolder.itemView.getContext())
-                .load(follower.getAvatarUrl())
+                .load(follower.avatarUrl())
                 .into(viewHolder.imageAvatar);
     }
 
@@ -57,7 +57,7 @@ public class RightFollowerAdapterDelegate implements AdapterDelegate<FollowersVi
         if (listener != null) {
             listener.onClick(
                     new RightFollowerClickData()
-                            .url(follower.getHtmlUrl())
+                            .url(follower.htmlUrl())
             );
         }
     }
