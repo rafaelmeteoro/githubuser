@@ -114,7 +114,7 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     public void onClickFollowers() {
         Intent intent = FollowersActivity.IntentBuilder
                 .builder(this)
-                .username(githubUser.getLogin())
+                .username(githubUser.login())
                 .create();
         startActivity(intent);
     }

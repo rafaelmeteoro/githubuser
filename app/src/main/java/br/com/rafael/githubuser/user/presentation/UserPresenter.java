@@ -43,9 +43,9 @@ public class UserPresenter implements UserContract.Presenter {
     private void setGithubUser(GithubUser githubUser) {
         view.showUser();
         view.setUser(githubUser);
-        view.showPhoto(githubUser.getAvatarUrl());
-        view.showLogin(githubUser.getLogin());
-        view.showName(githubUser.getName());
-        view.showLocation(githubUser.getLocation());
+        view.showPhoto(githubUser.avatarUrl());
+        view.showLogin(githubUser.login());
+        view.showName(githubUser.name());
+        view.showLocation(githubUser.location());
     }
 }
