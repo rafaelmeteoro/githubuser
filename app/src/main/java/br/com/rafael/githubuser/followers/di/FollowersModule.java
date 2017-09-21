@@ -1,6 +1,6 @@
 package br.com.rafael.githubuser.followers.di;
 
-import android.arch.lifecycle.LifecycleRegistryOwner;
+import android.arch.lifecycle.LifecycleOwner;
 
 import br.com.rafael.githubuser.core.di.PerActivity;
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
@@ -36,7 +36,7 @@ public class FollowersModule {
 
     @Provides
     @PerActivity
-    LifecycleRegistryOwner lifecycleRegistryOwner() {
+    LifecycleOwner lifecycleOwner() {
         return activity;
     }
 
