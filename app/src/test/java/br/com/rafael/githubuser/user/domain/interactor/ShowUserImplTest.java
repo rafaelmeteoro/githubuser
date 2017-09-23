@@ -6,47 +6,46 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
+import br.com.rafael.githubuser.user.presentation.UserContract;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-public class GetUserImplTest {
+public class ShowUserImplTest {
 
     @Mock
-    GithubUserRepository githubUserRepository;
+    UserContract.View view;
 
     @Mock
     GithubUser githubUser;
 
-    GetUser impl;
+    ShowUser impl;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+
         impl = spy(
-                new GetUserImpl(
+                new ShowUserImpl(
                         Schedulers.immediate(),
-                        Schedulers.immediate(),
-                        githubUserRepository)
+                        view)
         );
     }
 
     @Test
-    public void getUser() {
-        String username = "username";
-
-        when(githubUserRepository.getUser(any()))
-                .thenReturn(Observable.just(githubUser));
-
-        Observable.just(username)
+    public void onCall_shouldDelegateToView() {
+        Observable.just(githubUser)
                 .compose(impl)
                 .subscribe();
 
-        verify(githubUserRepository).getUser(username);
+        verify(view).showUser();
+        verify(view).setUser(githubUser);
+        verify(view).showPhoto(any());
+        verify(view).showLogin(any());
+        verify(view).showName(any());
+        verify(view).showLocation(any());
     }
 }

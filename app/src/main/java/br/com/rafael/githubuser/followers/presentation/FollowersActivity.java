@@ -17,6 +17,7 @@ import javax.inject.Inject;
 
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.application.GithubUserApplication;
+import br.com.rafael.githubuser.core.di.HasComponent;
 import br.com.rafael.githubuser.core.view.BaseActivity;
 import br.com.rafael.githubuser.followers.di.DaggerFollowersComponent;
 import br.com.rafael.githubuser.followers.di.FollowersModule;
@@ -26,11 +27,12 @@ import br.com.rafael.githubuser.followers.presentation.data.RightFollowerClickDa
 import br.com.rafael.githubuser.followers.presentation.listener.OnLeftFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.listener.OnRightFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
+import br.com.rafael.githubuser.library.di.LibraryComponent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.State;
 
-public class FollowersActivity extends BaseActivity implements FollowersContract.View {
+public class FollowersActivity extends BaseActivity implements HasComponent<LibraryComponent>, FollowersContract.View {
 
     private static final String KEY_USERNAME = "key_username";
 
@@ -95,7 +97,7 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
     private void inject() {
         DaggerFollowersComponent
                 .builder()
-                .libraryComponent(GithubUserApplication.get(this).getComponent())
+                .libraryComponent(getComponent())
                 .followersModule(new FollowersModule(this))
                 .build()
                 .inject(this);
@@ -118,6 +120,11 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
             String username = getIntent().getStringExtra(KEY_USERNAME);
             presenter.initialize(username);
         }
+    }
+
+    @Override
+    public LibraryComponent getComponent() {
+        return GithubUserApplication.get(this).getComponent();
     }
 
     @Override

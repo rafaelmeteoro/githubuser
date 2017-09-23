@@ -5,48 +5,39 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
+import br.com.rafael.githubuser.user.presentation.UserContract;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-public class GetUserImplTest {
-
-    @Mock
-    GithubUserRepository githubUserRepository;
+public class ClickFollowersImplTest {
 
     @Mock
-    GithubUser githubUser;
+    UserContract.View view;
 
-    GetUser impl;
+    ClickFollowers impl;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         impl = spy(
-                new GetUserImpl(
+                new ClickFollowersImpl(
                         Schedulers.immediate(),
-                        Schedulers.immediate(),
-                        githubUserRepository)
+                        view)
         );
     }
 
     @Test
-    public void getUser() {
+    public void onCall_shouldDelegateToView() {
         String username = "username";
-
-        when(githubUserRepository.getUser(any()))
-                .thenReturn(Observable.just(githubUser));
 
         Observable.just(username)
                 .compose(impl)
                 .subscribe();
 
-        verify(githubUserRepository).getUser(username);
+        verify(view).callFollowers(any());
     }
 }

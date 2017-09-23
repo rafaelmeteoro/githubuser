@@ -3,49 +3,56 @@ package br.com.rafael.githubuser.user.presentation;
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
-import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.domain.interactor.GetUser;
+import br.com.rafael.githubuser.user.presentation.coordinator.GetUserCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.RestoreStateCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.ShowLoadingUserCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.ShowUserCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.UserEventBindingCoordinator;
+import rx.Observable;
 import rx.Subscription;
 
 public class UserPresenter implements UserContract.Presenter {
 
-    private GetUser getUser;
-    private UserContract.View view;
+    private ShowLoadingUserCoordinator showLoadingUserCoordinator;
+    private GetUserCoordinator getUserCoordinator;
+    private ShowUserCoordinator showUserCoordinator;
+    private RestoreStateCoordinator restoreStateCoordinator;
     private AutomaticUnsubscriber automaticUnsubscriber;
+    private UserEventBindingCoordinator<String> userEventBindingCoordinator;
 
     @Inject
-    public UserPresenter(GetUser getUser,
-                         UserContract.View view,
-                         AutomaticUnsubscriber automaticUnsubscriber) {
-        this.getUser = getUser;
-        this.view = view;
+    public UserPresenter(ShowLoadingUserCoordinator showLoadingUserCoordinator,
+                         GetUserCoordinator getUserCoordinator,
+                         ShowUserCoordinator showUserCoordinator,
+                         RestoreStateCoordinator restoreStateCoordinator,
+                         AutomaticUnsubscriber automaticUnsubscriber,
+                         UserEventBindingCoordinator<String> userEventBindingCoordinator) {
+        this.showLoadingUserCoordinator = showLoadingUserCoordinator;
+        this.getUserCoordinator = getUserCoordinator;
+        this.showUserCoordinator = showUserCoordinator;
+        this.restoreStateCoordinator = restoreStateCoordinator;
         this.automaticUnsubscriber = automaticUnsubscriber;
+        this.userEventBindingCoordinator = userEventBindingCoordinator;
     }
 
     @Override
     public void initialize(String username) {
-        view.showUserLoading();
-
-        Subscription subscription = getUser.getUser(username)
-                .subscribe(this::setGithubUser,
-                        error -> {
-                            view.showUserError();
-                            error.printStackTrace();
-                        });
+        Subscription subscription =
+                Observable.just(username)
+                        .compose(userEventBindingCoordinator)
+                        .compose(showLoadingUserCoordinator)
+                        .compose(getUserCoordinator)
+                        .compose(showUserCoordinator)
+                        .subscribe();
         automaticUnsubscriber.add(subscription);
     }
 
     @Override
-    public void initializeFromState(GithubUser githubUser) {
-        setGithubUser(githubUser);
-    }
-
-    private void setGithubUser(GithubUser githubUser) {
-        view.showUser();
-        view.setUser(githubUser);
-        view.showPhoto(githubUser.avatarUrl());
-        view.showLogin(githubUser.login());
-        view.showName(githubUser.name());
-        view.showLocation(githubUser.location());
+    public void initializeFromState(UserContract.State state) {
+        Subscription subscription =
+                Observable.just(state)
+                        .compose(restoreStateCoordinator)
+                        .subscribe();
+        automaticUnsubscriber.add(subscription);
     }
 }

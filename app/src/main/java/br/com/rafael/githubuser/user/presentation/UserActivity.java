@@ -7,9 +7,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jakewharton.rxbinding.view.RxView;
 import com.kennyc.view.MultiStateView;
 import com.squareup.picasso.Picasso;
 
@@ -17,17 +20,22 @@ import javax.inject.Inject;
 
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.application.GithubUserApplication;
+import br.com.rafael.githubuser.core.di.HasComponent;
+import br.com.rafael.githubuser.core.di.qualifers.UIScheduler;
 import br.com.rafael.githubuser.core.view.BaseActivity;
 import br.com.rafael.githubuser.followers.presentation.FollowersActivity;
+import br.com.rafael.githubuser.library.di.LibraryComponent;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.di.DaggerUserComponent;
 import br.com.rafael.githubuser.user.di.UserModule;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import icepick.State;
+import rx.Observable;
+import rx.Scheduler;
+import rx.subjects.PublishSubject;
 
-public class UserActivity extends BaseActivity implements UserContract.View {
+public class UserActivity extends BaseActivity implements HasComponent<LibraryComponent>, UserContract.View {
 
     private static final String KEY_USERNAME = "key_username";
 
@@ -49,11 +57,46 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     @BindView(R.id.location_text)
     TextView txtLocation;
 
+    @BindView(R.id.button_followers)
+    Button btnFollowers;
+
+    View errorView;
+
     @Inject
     UserContract.Presenter presenter;
 
+    @Inject
+    @UIScheduler
+    Scheduler uiScheduler;
+
     @State
+    UserContract.State state;
+
     GithubUser githubUser;
+
+    private PublishSubject<UserContract.State> saveStatePublisher =
+            PublishSubject.create();
+    private PublishSubject<String> onRetryClickPublisher =
+            PublishSubject.create();
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        UserContract.State state = new UserContract.State();
+        state.githubUser = githubUser;
+
+        saveStatePublisher.onNext(state);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public Observable<UserContract.State> onSaveState() {
+        return saveStatePublisher;
+    }
+
+    @Override
+    public void saveState(@NonNull UserContract.State state) {
+        this.state = state;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,7 +127,7 @@ public class UserActivity extends BaseActivity implements UserContract.View {
     private void inject() {
         DaggerUserComponent
                 .builder()
-                .libraryComponent(GithubUserApplication.get(this).getComponent())
+                .libraryComponent(getComponent())
                 .userModule(new UserModule(this))
                 .build()
                 .inject(this);
@@ -94,11 +137,16 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
-            presenter.initializeFromState(githubUser);
+            presenter.initializeFromState(state);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
             presenter.initialize(username);
         }
+    }
+
+    @Override
+    public LibraryComponent getComponent() {
+        return GithubUserApplication.get(this).getComponent();
     }
 
     @Override
@@ -110,11 +158,19 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         return super.onOptionsItemSelected(item);
     }
 
-    @OnClick(R.id.button_followers)
-    public void onClickFollowers() {
+    @Override
+    public Observable<String> onFollowersClicked() {
+        return RxView.clicks(btnFollowers)
+                .observeOn(uiScheduler)
+                .subscribeOn(uiScheduler)
+                .map(ignored -> githubUser.login());
+    }
+
+    @Override
+    public void callFollowers(String username) {
         Intent intent = FollowersActivity.IntentBuilder
                 .builder(this)
-                .username(githubUser.login())
+                .username(username)
                 .create();
         startActivity(intent);
     }
@@ -134,9 +190,22 @@ public class UserActivity extends BaseActivity implements UserContract.View {
         stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void showUserError() {
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
+
+        if (errorView == null) {
+            errorView = stateView
+                    .getView(MultiStateView.VIEW_STATE_ERROR);
+        }
+        errorView.setOnClickListener(ignored ->
+                onRetryClickPublisher.onNext(getIntent().getStringExtra(KEY_USERNAME)));
+    }
+
+    @Override
+    public Observable<String> onRetryClicked() {
+        return onRetryClickPublisher;
     }
 
     @Override
