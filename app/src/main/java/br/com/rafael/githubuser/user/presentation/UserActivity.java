@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.jakewharton.rxbinding.view.RxView;
 import com.kennyc.view.MultiStateView;
 import com.squareup.picasso.Picasso;
 
@@ -30,13 +29,12 @@ import br.com.rafael.githubuser.user.di.DaggerUserComponent;
 import br.com.rafael.githubuser.user.di.UserModule;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import icepick.State;
-import rx.Observable;
+import butterknife.OnClick;
 import rx.Scheduler;
-import rx.subjects.PublishSubject;
 
 public class UserActivity extends BaseActivity implements HasComponent<LibraryComponent>, UserContract.View {
 
+    private static final String KEY_STATE = "state";
     private static final String KEY_USERNAME = "key_username";
 
     @BindView(R.id.toolbar)
@@ -69,33 +67,12 @@ public class UserActivity extends BaseActivity implements HasComponent<LibraryCo
     @UIScheduler
     Scheduler uiScheduler;
 
-    @State
-    UserContract.State state;
-
-    GithubUser githubUser;
-
-    private PublishSubject<UserContract.State> saveStatePublisher =
-            PublishSubject.create();
-    private PublishSubject<String> onRetryClickPublisher =
-            PublishSubject.create();
+    UserContract.State state = new UserContract.State();
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        UserContract.State state = new UserContract.State();
-        state.githubUser = githubUser;
-
-        saveStatePublisher.onNext(state);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public Observable<UserContract.State> onSaveState() {
-        return saveStatePublisher;
-    }
-
-    @Override
-    public void saveState(@NonNull UserContract.State state) {
-        this.state = state;
+        outState.putParcelable(KEY_STATE, state);
     }
 
     @Override
@@ -137,6 +114,7 @@ public class UserActivity extends BaseActivity implements HasComponent<LibraryCo
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
+            state = savedState.getParcelable(KEY_STATE);
             presenter.initializeFromState(state);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
@@ -158,76 +136,60 @@ public class UserActivity extends BaseActivity implements HasComponent<LibraryCo
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public Observable<String> onFollowersClicked() {
-        return RxView.clicks(btnFollowers)
-                .observeOn(uiScheduler)
-                .subscribeOn(uiScheduler)
-                .map(ignored -> githubUser.login());
+    @OnClick(R.id.button_followers)
+    public void onClickFollowers() {
+        presenter.clickFollowers(getIntent().getStringExtra(KEY_USERNAME));
     }
 
     @Override
-    public void callFollowers(String username) {
+    public void showLoadingState() {
+        state.isShowingUserLoadError = false;
+        stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
+    }
+
+    @Override
+    public void showEmptySate() {
+        state.isShowingUserLoadError = false;
+        stateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+    }
+
+    @Override
+    public void showErrorState() {
+        state.isShowingUserLoadError = true;
+        stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
+        if (errorView == null) {
+            errorView = stateView.getView(MultiStateView.VIEW_STATE_ERROR);
+        }
+
+        errorView.setOnClickListener(view ->
+                presenter.initialize(getIntent().getStringExtra(KEY_USERNAME)));
+    }
+
+    @Override
+    public void showContentState() {
+        stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+    }
+
+    @Override
+    public void showUser(GithubUser githubUser) {
+        state.isShowingUserLoadError = false;
+        state.githubUser = githubUser;
+
+        txtLogin.setText(githubUser.login());
+        txtName.setText(githubUser.name());
+        txtLocation.setText(githubUser.location());
+        Picasso.with(this)
+                .load(githubUser.avatarUrl())
+                .into(photoAvatar);
+    }
+
+    @Override
+    public void launchFollowersActivity(String username) {
         Intent intent = FollowersActivity.IntentBuilder
                 .builder(this)
                 .username(username)
                 .create();
         startActivity(intent);
-    }
-
-    @Override
-    public void setUser(GithubUser githubUser) {
-        this.githubUser = githubUser;
-    }
-
-    @Override
-    public void showUser() {
-        stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-    }
-
-    @Override
-    public void showUserLoading() {
-        stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    @Override
-    public void showUserError() {
-        stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
-
-        if (errorView == null) {
-            errorView = stateView
-                    .getView(MultiStateView.VIEW_STATE_ERROR);
-        }
-        errorView.setOnClickListener(ignored ->
-                onRetryClickPublisher.onNext(getIntent().getStringExtra(KEY_USERNAME)));
-    }
-
-    @Override
-    public Observable<String> onRetryClicked() {
-        return onRetryClickPublisher;
-    }
-
-    @Override
-    public void showPhoto(String photoUrl) {
-        Picasso.with(this)
-                .load(photoUrl)
-                .into(photoAvatar);
-    }
-
-    @Override
-    public void showLogin(String login) {
-        txtLogin.setText(login);
-    }
-
-    @Override
-    public void showName(String name) {
-        txtName.setText(name);
-    }
-
-    @Override
-    public void showLocation(String location) {
-        txtLocation.setText(location);
     }
 
     public static class IntentBuilder {

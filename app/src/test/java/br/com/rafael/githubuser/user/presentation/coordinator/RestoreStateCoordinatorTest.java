@@ -8,7 +8,6 @@ import org.mockito.MockitoAnnotations;
 
 import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.domain.interactor.RestoreUserState;
-import br.com.rafael.githubuser.user.domain.interactor.ShowUser;
 import br.com.rafael.githubuser.user.presentation.UserContract;
 import rx.Observable;
 
@@ -23,12 +22,6 @@ public class RestoreStateCoordinatorTest {
     RestoreUserState restoreUserState;
 
     @Mock
-    ShowUser showUser;
-
-    @Mock
-    UserEventBindingCoordinator<GithubUser> userUserEventBindingCoordinator;
-
-    @Mock
     UserContract.State state;
 
     @Mock
@@ -41,32 +34,22 @@ public class RestoreStateCoordinatorTest {
         MockitoAnnotations.initMocks(this);
         impl = spy(
                 new RestoreStateCoordinator(
-                        restoreUserState,
-                        showUser,
-                        userUserEventBindingCoordinator)
+                        restoreUserState)
         );
     }
 
     @Test
     public void callCoordinatorRestoreState_shouldExecuteInOrder() {
         when(restoreUserState.call(any()))
-                .thenReturn(Observable.just(githubUser));
-        when(showUser.call(any()))
-                .thenReturn(Observable.just(githubUser));
-        when(userUserEventBindingCoordinator.call(any()))
-                .thenReturn(Observable.just(githubUser));
+                .thenReturn(Observable.just(state));
 
         InOrder callOrder = inOrder(
-                restoreUserState,
-                showUser,
-                userUserEventBindingCoordinator);
+                restoreUserState);
 
         Observable.just(state)
                 .compose(impl)
                 .subscribe();
 
         callOrder.verify(restoreUserState).call(any());
-        callOrder.verify(showUser).call(any());
-        callOrder.verify(userUserEventBindingCoordinator).call(any());
     }
 }

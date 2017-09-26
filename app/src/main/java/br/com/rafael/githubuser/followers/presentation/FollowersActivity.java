@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.kennyc.view.MultiStateView;
 
@@ -31,6 +32,8 @@ import br.com.rafael.githubuser.library.di.LibraryComponent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import icepick.State;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
 public class FollowersActivity extends BaseActivity implements HasComponent<LibraryComponent>, FollowersContract.View {
 
@@ -45,6 +48,8 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
+    View errorView;
+
     @Inject
     FollowersContract.Presenter presenter;
 
@@ -52,7 +57,14 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
     FollowersAdapter adapter;
 
     @State
+    FollowersContract.State state;
+
     FollowersViewModelHolder holder;
+
+    private PublishSubject<FollowersContract.State> saveStatePublisher =
+            PublishSubject.create();
+    private PublishSubject<String> onRetryClickPublisher =
+            PublishSubject.create();
 
     private OnLeftFollowerClickListener onLeftFollowerClickListener =
             this::handleLeftFollowerClick;
@@ -70,6 +82,25 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(data.url()));
         startActivity(intent);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        FollowersContract.State state = new FollowersContract.State();
+        state.holder = holder;
+
+        saveStatePublisher.onNext(state);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public Observable<FollowersContract.State> onSaveState() {
+        return saveStatePublisher;
+    }
+
+    @Override
+    public void saveState(@NonNull FollowersContract.State state) {
+        this.state = state;
     }
 
     @Override
@@ -115,7 +146,7 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
-            presenter.initializeFromState(holder);
+            presenter.initializeFromState(state);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
             presenter.initialize(username);
@@ -150,9 +181,22 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
         stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void showFollowersError() {
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
+
+        if (errorView == null) {
+            errorView = stateView
+                    .getView(MultiStateView.VIEW_STATE_ERROR);
+        }
+        errorView.setOnClickListener(ignored ->
+                onRetryClickPublisher.onNext(getIntent().getStringExtra(KEY_USERNAME)));
+    }
+
+    @Override
+    public Observable<String> onRetryClicked() {
+        return onRetryClickPublisher;
     }
 
     public static class IntentBuilder {

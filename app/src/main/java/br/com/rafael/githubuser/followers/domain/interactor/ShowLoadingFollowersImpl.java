@@ -1,20 +1,20 @@
-package br.com.rafael.githubuser.user.domain.interactor;
+package br.com.rafael.githubuser.followers.domain.interactor;
 
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.di.qualifers.UIScheduler;
-import br.com.rafael.githubuser.user.presentation.UserContract;
+import br.com.rafael.githubuser.followers.presentation.FollowersContract;
 import rx.Observable;
 import rx.Scheduler;
 
-public class ShowLoadingUserImpl implements ShowLoadingUser {
+public class ShowLoadingFollowersImpl implements ShowLoadingFollowers {
 
     private Scheduler uiScheduler;
-    private UserContract.View view;
+    private FollowersContract.View view;
 
     @Inject
-    public ShowLoadingUserImpl(@UIScheduler Scheduler uiScheduler,
-                               UserContract.View view) {
+    public ShowLoadingFollowersImpl(@UIScheduler Scheduler uiScheduler,
+                                    FollowersContract.View view) {
         this.uiScheduler = uiScheduler;
         this.view = view;
     }
@@ -24,6 +24,6 @@ public class ShowLoadingUserImpl implements ShowLoadingUser {
         return observable
                 .observeOn(uiScheduler)
                 .subscribeOn(uiScheduler)
-                .doOnNext(ignored -> view.showLoadingState());
+                .doOnNext(ignored -> view.showFollowersLoading());
     }
 }

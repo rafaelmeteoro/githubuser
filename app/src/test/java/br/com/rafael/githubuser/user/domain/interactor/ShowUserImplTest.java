@@ -36,16 +36,23 @@ public class ShowUserImplTest {
     }
 
     @Test
-    public void onCall_shouldDelegateToView() {
+    public void showUser_shouldContentState() {
         Observable.just(githubUser)
                 .compose(impl)
                 .subscribe();
 
-        verify(view).showUser();
-        verify(view).setUser(githubUser);
-        verify(view).showPhoto(any());
-        verify(view).showLogin(any());
-        verify(view).showName(any());
-        verify(view).showLocation(any());
+        verify(view).showContentState();
+        verify(view).showUser(any());
+    }
+
+    @Test
+    public void showUser_shouldEmptyState() {
+        githubUser = null;
+
+        Observable.just(githubUser)
+                .compose(impl)
+                .subscribe();
+
+        verify(view).showEmptySate();
     }
 }

@@ -24,6 +24,10 @@ public class ClickFollowersImpl implements ClickFollowers {
         return observable
                 .observeOn(uiScheduler)
                 .subscribeOn(uiScheduler)
-                .doOnNext(view::callFollowers);
+                .doOnNext(this::launchFollowers);
+    }
+
+    private void launchFollowers(String username) {
+        view.launchFollowersActivity(username);
     }
 }

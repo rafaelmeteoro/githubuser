@@ -8,11 +8,9 @@ import org.mockito.MockitoAnnotations;
 
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.presentation.coordinator.GetUserCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.ClickFollowersCoordinator;
 import br.com.rafael.githubuser.user.presentation.coordinator.RestoreStateCoordinator;
-import br.com.rafael.githubuser.user.presentation.coordinator.ShowLoadingUserCoordinator;
-import br.com.rafael.githubuser.user.presentation.coordinator.ShowUserCoordinator;
-import br.com.rafael.githubuser.user.presentation.coordinator.UserEventBindingCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.UserCoordinator;
 import rx.Observable;
 
 import static org.mockito.Matchers.any;
@@ -24,22 +22,16 @@ import static org.mockito.Mockito.when;
 public class UserPresenterTest {
 
     @Mock
-    ShowLoadingUserCoordinator showLoadingUserCoordinator;
-
-    @Mock
-    GetUserCoordinator getUserCoordinator;
-
-    @Mock
-    ShowUserCoordinator showUserCoordinator;
+    UserCoordinator userCoordinator;
 
     @Mock
     RestoreStateCoordinator restoreStateCoordinator;
 
     @Mock
-    AutomaticUnsubscriber automaticUnsubscriber;
+    ClickFollowersCoordinator clickFollowersCoordinator;
 
     @Mock
-    UserEventBindingCoordinator<String> userEventBindingCoordinator;
+    AutomaticUnsubscriber automaticUnsubscriber;
 
     @Mock
     GithubUser githubUser;
@@ -55,53 +47,30 @@ public class UserPresenterTest {
 
         presenter = spy(
                 new UserPresenter(
-                        showLoadingUserCoordinator,
-                        getUserCoordinator,
-                        showUserCoordinator,
+                        userCoordinator,
                         restoreStateCoordinator,
-                        automaticUnsubscriber,
-                        userEventBindingCoordinator)
+                        clickFollowersCoordinator,
+                        automaticUnsubscriber)
         );
     }
 
     @Test
     public void initializePresenter_shouldCAllCoordinatorsInOrder() {
-        String username = "username";
-
-        when(userEventBindingCoordinator.call(any()))
-                .thenReturn(Observable.just(username));
-        when(showLoadingUserCoordinator.call(any()))
-                .thenReturn(Observable.just(username));
-        when(getUserCoordinator.call(any()))
-                .thenReturn(Observable.just(githubUser));
-        when(showUserCoordinator.call(any()))
+        when(userCoordinator.call(any()))
                 .thenReturn(Observable.just(githubUser));
 
         InOrder callOrder = inOrder(
-                userEventBindingCoordinator,
-                showLoadingUserCoordinator,
-                getUserCoordinator,
-                showUserCoordinator);
+                userCoordinator
+        );
 
         presenter.initialize(any());
 
-        callOrder.verify(userEventBindingCoordinator).call(any());
-        callOrder.verify(showLoadingUserCoordinator).call(any());
-        callOrder.verify(getUserCoordinator).call(any());
-        callOrder.verify(showUserCoordinator).call(any());
+        callOrder.verify(userCoordinator).call(any());
     }
 
     @Test
     public void initializePresenter_shouldAddSubscriptionsToAutomaticUnsubscriber() {
-        String username ="username";
-
-        when(userEventBindingCoordinator.call(any()))
-                .thenReturn(Observable.just(username));
-        when(showLoadingUserCoordinator.call(any()))
-                .thenReturn(Observable.just(username));
-        when(getUserCoordinator.call(any()))
-                .thenReturn(Observable.just(githubUser));
-        when(showUserCoordinator.call(any()))
+        when(userCoordinator.call(any()))
                 .thenReturn(Observable.just(githubUser));
 
         presenter.initialize(any());
@@ -110,21 +79,53 @@ public class UserPresenterTest {
     }
 
     @Test
-    public void initializeFromStatePresenter_shouldRestoreStates() {
+    public void initializeFromStatePresenter_shouldCallCoordinatorsInOrder() {
         when(restoreStateCoordinator.call(any()))
-                .thenReturn(Observable.just(githubUser));
+                .thenReturn(Observable.just(state));
 
-        presenter.initializeFromState(state);
+        InOrder callOrder = inOrder(
+                restoreStateCoordinator
+        );
 
-        verify(restoreStateCoordinator).call(any());
+        presenter.initializeFromState(any());
+
+        callOrder.verify(restoreStateCoordinator).call(any());
     }
 
     @Test
     public void initializeFromStatePresenter_shouldAddSubscriptionsToAutomaticUnsubscriber() {
         when(restoreStateCoordinator.call(any()))
-                .thenReturn(Observable.just(githubUser));
+                .thenReturn(Observable.just(state));
 
-        presenter.initializeFromState(state);
+        presenter.initializeFromState(any());
+
+        verify(automaticUnsubscriber).add(any());
+    }
+
+    @Test
+    public void clickFollowers_shouldCAllCoordinatorsInOrder() {
+        String username = "username";
+
+        when(clickFollowersCoordinator.call(any()))
+                .thenReturn(Observable.just(username));
+
+        InOrder callOrder = inOrder(
+                clickFollowersCoordinator
+        );
+
+        presenter.clickFollowers(username);
+
+        callOrder.verify(clickFollowersCoordinator).call(any());
+    }
+
+    @Test
+    public void clickFollowers_shouldAddSubscriptionsToAutomaticUnsubscriber() {
+        String username = "username";
+
+        when(clickFollowersCoordinator.call(any()))
+                .thenReturn(Observable.just(username));
+
+        presenter.clickFollowers(username);
 
         verify(automaticUnsubscriber).add(any());
     }

@@ -3,46 +3,35 @@ package br.com.rafael.githubuser.user.presentation;
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
-import br.com.rafael.githubuser.user.presentation.coordinator.GetUserCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.ClickFollowersCoordinator;
 import br.com.rafael.githubuser.user.presentation.coordinator.RestoreStateCoordinator;
-import br.com.rafael.githubuser.user.presentation.coordinator.ShowLoadingUserCoordinator;
-import br.com.rafael.githubuser.user.presentation.coordinator.ShowUserCoordinator;
-import br.com.rafael.githubuser.user.presentation.coordinator.UserEventBindingCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.UserCoordinator;
 import rx.Observable;
 import rx.Subscription;
 
 public class UserPresenter implements UserContract.Presenter {
 
-    private ShowLoadingUserCoordinator showLoadingUserCoordinator;
-    private GetUserCoordinator getUserCoordinator;
-    private ShowUserCoordinator showUserCoordinator;
+    private UserCoordinator userCoordinator;
     private RestoreStateCoordinator restoreStateCoordinator;
+    private ClickFollowersCoordinator clickFollowersCoordinator;
     private AutomaticUnsubscriber automaticUnsubscriber;
-    private UserEventBindingCoordinator<String> userEventBindingCoordinator;
 
     @Inject
-    public UserPresenter(ShowLoadingUserCoordinator showLoadingUserCoordinator,
-                         GetUserCoordinator getUserCoordinator,
-                         ShowUserCoordinator showUserCoordinator,
+    public UserPresenter(UserCoordinator userCoordinator,
                          RestoreStateCoordinator restoreStateCoordinator,
-                         AutomaticUnsubscriber automaticUnsubscriber,
-                         UserEventBindingCoordinator<String> userEventBindingCoordinator) {
-        this.showLoadingUserCoordinator = showLoadingUserCoordinator;
-        this.getUserCoordinator = getUserCoordinator;
-        this.showUserCoordinator = showUserCoordinator;
+                         ClickFollowersCoordinator clickFollowersCoordinator,
+                         AutomaticUnsubscriber automaticUnsubscriber) {
+        this.userCoordinator = userCoordinator;
         this.restoreStateCoordinator = restoreStateCoordinator;
+        this.clickFollowersCoordinator = clickFollowersCoordinator;
         this.automaticUnsubscriber = automaticUnsubscriber;
-        this.userEventBindingCoordinator = userEventBindingCoordinator;
     }
 
     @Override
     public void initialize(String username) {
         Subscription subscription =
                 Observable.just(username)
-                        .compose(userEventBindingCoordinator)
-                        .compose(showLoadingUserCoordinator)
-                        .compose(getUserCoordinator)
-                        .compose(showUserCoordinator)
+                        .compose(userCoordinator)
                         .subscribe();
         automaticUnsubscriber.add(subscription);
     }
@@ -52,6 +41,15 @@ public class UserPresenter implements UserContract.Presenter {
         Subscription subscription =
                 Observable.just(state)
                         .compose(restoreStateCoordinator)
+                        .subscribe();
+        automaticUnsubscriber.add(subscription);
+    }
+
+    @Override
+    public void clickFollowers(String username) {
+        Subscription subscription =
+                Observable.just(username)
+                        .compose(clickFollowersCoordinator)
                         .subscribe();
         automaticUnsubscriber.add(subscription);
     }

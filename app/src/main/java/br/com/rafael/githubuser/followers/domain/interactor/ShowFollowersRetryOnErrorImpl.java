@@ -1,20 +1,20 @@
-package br.com.rafael.githubuser.user.domain.interactor;
+package br.com.rafael.githubuser.followers.domain.interactor;
 
 import javax.inject.Inject;
 
 import br.com.rafael.githubuser.core.di.qualifers.UIScheduler;
-import br.com.rafael.githubuser.user.presentation.UserContract;
+import br.com.rafael.githubuser.followers.presentation.FollowersContract;
 import rx.Observable;
 import rx.Scheduler;
 
-public class ShowUserRetryOnErrorImpl<T> implements ShowUserRetryOnError<T> {
+public class ShowFollowersRetryOnErrorImpl<T> implements ShowFollowersRetryOnError<T> {
 
     private Scheduler uiScheduler;
-    private UserContract.View view;
+    private FollowersContract.View view;
 
     @Inject
-    public ShowUserRetryOnErrorImpl(@UIScheduler Scheduler uiScheduler,
-                                    UserContract.View view) {
+    public ShowFollowersRetryOnErrorImpl(@UIScheduler Scheduler uiScheduler,
+                                         FollowersContract.View view) {
         this.uiScheduler = uiScheduler;
         this.view = view;
     }
@@ -30,6 +30,6 @@ public class ShowUserRetryOnErrorImpl<T> implements ShowUserRetryOnError<T> {
     private void onError(Throwable error) {
         error.printStackTrace();
 
-        view.showUserError();
+        view.showFollowersError();
     }
 }

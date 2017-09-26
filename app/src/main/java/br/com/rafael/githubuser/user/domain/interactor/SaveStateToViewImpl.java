@@ -16,7 +16,6 @@ public class SaveStateToViewImpl implements SaveStateToView {
 
     @Override
     public Observable<UserContract.State> call(Observable<UserContract.State> observable) {
-        return observable
-                .doOnNext(view::saveState);
+        return observable;
     }
 }

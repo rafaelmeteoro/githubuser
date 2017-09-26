@@ -25,15 +25,22 @@ public class ShowUserImpl implements ShowUser {
         return observable
                 .observeOn(uiScheduler)
                 .subscribeOn(uiScheduler)
-                .doOnNext(this::showUser);
+                .doOnNext(this::showUser)
+                .doOnError(this::showError)
+                .onExceptionResumeNext(Observable.never());
     }
 
     private void showUser(GithubUser user) {
-        view.showUser();
-        view.setUser(user);
-        view.showPhoto(user.avatarUrl());
-        view.showLogin(user.login());
-        view.showName(user.name());
-        view.showLocation(user.location());
+        if (user == null) {
+            view.showEmptySate();
+        } else {
+            view.showContentState();
+            view.showUser(user);
+        }
+    }
+
+    private void showError(Throwable error) {
+        error.printStackTrace();
+        view.showErrorState();
     }
 }

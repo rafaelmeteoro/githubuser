@@ -38,6 +38,6 @@ public class ShowLoadingUserImplTest {
                 .compose(impl)
                 .subscribe();
 
-        verify(view).showUserLoading();
+        verify(view).showLoadingState();
     }
 }

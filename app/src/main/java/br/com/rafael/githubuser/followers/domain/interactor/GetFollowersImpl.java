@@ -28,7 +28,12 @@ public class GetFollowersImpl implements GetFollowers {
     }
 
     @Override
-    public Observable<FollowersViewModelHolder> getFollowers(String username) {
+    public Observable<FollowersViewModelHolder> call(Observable<String> observable) {
+        return observable
+                .flatMap(this::getFollowers);
+    }
+
+    private Observable<FollowersViewModelHolder> getFollowers(String username) {
         return githubFollowerRepository.getFollowers(username)
                 .flatMap(this::mapViewModelImage)
                 .toList()

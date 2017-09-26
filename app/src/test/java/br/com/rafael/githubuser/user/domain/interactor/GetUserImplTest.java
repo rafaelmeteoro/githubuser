@@ -8,11 +8,13 @@ import org.mockito.MockitoAnnotations;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.data.repository.GithubUserRepository;
 import rx.Observable;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class GetUserImplTest {
@@ -37,16 +39,22 @@ public class GetUserImplTest {
     }
 
     @Test
-    public void getUser() {
+    public void onCall_shouldReturnUser() {
         String username = "username";
 
         when(githubUserRepository.getUser(any()))
                 .thenReturn(Observable.just(githubUser));
 
+        TestSubscriber<GithubUser> subscriber = new TestSubscriber<>();
+
         Observable.just(username)
                 .compose(impl)
-                .subscribe();
+                .subscribe(subscriber);
 
-        verify(githubUserRepository).getUser(username);
+        subscriber.assertNoErrors();
+
+        GithubUser result = subscriber.getOnNextEvents().get(0);
+
+        assertThat(result, sameInstance(githubUser));
     }
 }

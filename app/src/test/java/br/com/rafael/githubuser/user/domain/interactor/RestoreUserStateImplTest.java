@@ -8,14 +8,17 @@ import org.mockito.MockitoAnnotations;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
 import br.com.rafael.githubuser.user.presentation.UserContract;
 import rx.Observable;
-import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import static org.hamcrest.CoreMatchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 public class RestoreUserStateImplTest {
+
+    @Mock
+    UserContract.View view;
 
     @Mock
     UserContract.State state;
@@ -31,23 +34,56 @@ public class RestoreUserStateImplTest {
 
         impl = spy(
                 new RestoreUserStateImpl(
-                        Schedulers.immediate())
+                        Schedulers.immediate(),
+                        view)
         );
     }
 
     @Test
-    public void restoreState_shouldReturnUser() {
+    public void restoreState_shouldStateContent() {
         GithubUser githubUser = new GithubUser();
+        state.isShowingUserLoadError = false;
         state.githubUser = githubUser;
 
-        TestSubscriber<GithubUser> subscriber = new TestSubscriber<>();
         Observable.just(state)
                 .compose(impl)
-                .subscribe(subscriber);
+                .subscribe();
 
-        subscriber.assertNoErrors();
-        GithubUser result = subscriber.getOnNextEvents().get(0);
+        verify(view).showContentState();
+        verify(view).showUser(any());
 
-        assertThat(result, sameInstance(githubUser));
+        verify(view, never()).showEmptySate();
+        verify(view, never()).showErrorState();
+    }
+
+    @Test
+    public void restoreState_shouldStateEmpty() {
+        state.isShowingUserLoadError = false;
+        state.githubUser = null;
+
+        Observable.just(state)
+                .compose(impl)
+                .subscribe();
+
+        verify(view).showEmptySate();
+
+        verify(view, never()).showContentState();
+        verify(view, never()).showUser(any());
+        verify(view, never()).showErrorState();
+    }
+
+    @Test
+    public void restoreState_shouldStateError() {
+        state.isShowingUserLoadError = true;
+
+        Observable.just(state)
+                .compose(impl)
+                .subscribe();
+
+        verify(view).showErrorState();
+
+        verify(view, never()).showContentState();
+        verify(view, never()).showUser(any());
+        verify(view, never()).showEmptySate();
     }
 }

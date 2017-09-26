@@ -38,6 +38,6 @@ public class ClickFollowersImplTest {
                 .compose(impl)
                 .subscribe();
 
-        verify(view).callFollowers(any());
+        verify(view).launchFollowersActivity(any());
     }
 }
