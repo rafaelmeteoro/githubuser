@@ -24,6 +24,6 @@ public class ShowLoadingFollowersImpl implements ShowLoadingFollowers {
         return observable
                 .observeOn(uiScheduler)
                 .subscribeOn(uiScheduler)
-                .doOnNext(ignored -> view.showFollowersLoading());
+                .doOnNext(ignored -> view.showLoadingState());
     }
 }

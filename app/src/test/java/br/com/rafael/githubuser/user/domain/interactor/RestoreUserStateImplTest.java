@@ -31,7 +31,6 @@ public class RestoreUserStateImplTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
         impl = spy(
                 new RestoreUserStateImpl(
                         Schedulers.immediate(),

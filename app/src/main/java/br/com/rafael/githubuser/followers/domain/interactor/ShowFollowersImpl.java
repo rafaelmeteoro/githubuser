@@ -25,6 +25,26 @@ public class ShowFollowersImpl implements ShowFollowers {
         return observable
                 .observeOn(uiScheduler)
                 .subscribeOn(uiScheduler)
-                .doOnNext(view::showFollowers);
+                .doOnNext(this::showFollowers)
+                .doOnError(this::showError)
+                .onExceptionResumeNext(Observable.never());
+    }
+
+    private void showFollowers(FollowersViewModelHolder holder) {
+        if (isEmpty(holder)) {
+            view.showEmptyState();
+        } else {
+            view.showContentState();
+            view.showFollowers(holder);
+        }
+    }
+
+    private void showError(Throwable error) {
+        error.printStackTrace();
+        view.showErrorState();
+    }
+
+    private boolean isEmpty(FollowersViewModelHolder holder) {
+        return holder == null || holder.getViewModels() == null || holder.getViewModels().isEmpty();
     }
 }

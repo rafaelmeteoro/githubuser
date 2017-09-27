@@ -9,18 +9,13 @@ import br.com.rafael.githubuser.followers.domain.interactor.GetFollowers;
 import br.com.rafael.githubuser.followers.domain.interactor.GetFollowersImpl;
 import br.com.rafael.githubuser.followers.domain.interactor.RestoreFollowersState;
 import br.com.rafael.githubuser.followers.domain.interactor.RestoreFollowersStateImpl;
-import br.com.rafael.githubuser.followers.domain.interactor.SaveFollowersStateToView;
-import br.com.rafael.githubuser.followers.domain.interactor.SaveFollowersStateToViewImpl;
 import br.com.rafael.githubuser.followers.domain.interactor.ShowFollowers;
 import br.com.rafael.githubuser.followers.domain.interactor.ShowFollowersImpl;
-import br.com.rafael.githubuser.followers.domain.interactor.ShowFollowersRetryOnError;
-import br.com.rafael.githubuser.followers.domain.interactor.ShowFollowersRetryOnErrorImpl;
 import br.com.rafael.githubuser.followers.domain.interactor.ShowLoadingFollowers;
 import br.com.rafael.githubuser.followers.domain.interactor.ShowLoadingFollowersImpl;
 import br.com.rafael.githubuser.followers.presentation.FollowersActivity;
 import br.com.rafael.githubuser.followers.presentation.FollowersContract;
 import br.com.rafael.githubuser.followers.presentation.FollowersPresenter;
-import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
 import dagger.Module;
 import dagger.Provides;
 
@@ -78,19 +73,6 @@ public class FollowersModule {
     @Provides
     @PerActivity
     RestoreFollowersState restoreFollowersState(RestoreFollowersStateImpl impl) {
-        return impl;
-    }
-
-    @Provides
-    @PerActivity
-    SaveFollowersStateToView saveFollowersStateToView(SaveFollowersStateToViewImpl impl) {
-        return impl;
-    }
-
-    @Provides
-    @PerActivity
-    ShowFollowersRetryOnError<FollowersViewModelHolder> showFollowersRetryOnError(
-            ShowFollowersRetryOnErrorImpl<FollowersViewModelHolder> impl) {
         return impl;
     }
 }

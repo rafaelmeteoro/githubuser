@@ -31,12 +31,10 @@ import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewMo
 import br.com.rafael.githubuser.library.di.LibraryComponent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import icepick.State;
-import rx.Observable;
-import rx.subjects.PublishSubject;
 
 public class FollowersActivity extends BaseActivity implements HasComponent<LibraryComponent>, FollowersContract.View {
 
+    private static final String KEY_STATE = "state";
     private static final String KEY_USERNAME = "key_username";
 
     @BindView(R.id.toolbar)
@@ -56,15 +54,7 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
     @Inject
     FollowersAdapter adapter;
 
-    @State
-    FollowersContract.State state;
-
-    FollowersViewModelHolder holder;
-
-    private PublishSubject<FollowersContract.State> saveStatePublisher =
-            PublishSubject.create();
-    private PublishSubject<String> onRetryClickPublisher =
-            PublishSubject.create();
+    FollowersContract.State state = new FollowersContract.State();
 
     private OnLeftFollowerClickListener onLeftFollowerClickListener =
             this::handleLeftFollowerClick;
@@ -86,21 +76,8 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        FollowersContract.State state = new FollowersContract.State();
-        state.holder = holder;
-
-        saveStatePublisher.onNext(state);
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public Observable<FollowersContract.State> onSaveState() {
-        return saveStatePublisher;
-    }
-
-    @Override
-    public void saveState(@NonNull FollowersContract.State state) {
-        this.state = state;
+        outState.putParcelable(KEY_STATE, state);
     }
 
     @Override
@@ -146,6 +123,7 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
+            state = savedState.getParcelable(KEY_STATE);
             presenter.initializeFromState(state);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
@@ -168,35 +146,43 @@ public class FollowersActivity extends BaseActivity implements HasComponent<Libr
     }
 
     @Override
-    public void showFollowers(FollowersViewModelHolder holder) {
-        this.holder = holder;
-
-        stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-        adapter.setData(holder);
-        recyclerView.setAdapter(adapter);
+    public void showLoadingState() {
+        state.isShowingFollowersLoadError = false;
+        stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
     }
 
     @Override
-    public void showFollowersLoading() {
-        stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
+    public void showEmptyState() {
+        state.isShowingFollowersLoadError = false;
+        stateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
     }
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    public void showFollowersError() {
+    public void showErrorState() {
+        state.isShowingFollowersLoadError = true;
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
 
         if (errorView == null) {
-            errorView = stateView
-                    .getView(MultiStateView.VIEW_STATE_ERROR);
+            errorView = stateView.getView(MultiStateView.VIEW_STATE_ERROR);
         }
-        errorView.setOnClickListener(ignored ->
-                onRetryClickPublisher.onNext(getIntent().getStringExtra(KEY_USERNAME)));
+
+        errorView.setOnClickListener(view ->
+                presenter.initialize(getIntent().getStringExtra(KEY_USERNAME)));
     }
 
     @Override
-    public Observable<String> onRetryClicked() {
-        return onRetryClickPublisher;
+    public void showContentState() {
+        stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+    }
+
+    @Override
+    public void showFollowers(FollowersViewModelHolder holder) {
+        state.isShowingFollowersLoadError = false;
+        state.holder = holder;
+
+        adapter.setData(holder);
+        recyclerView.setAdapter(adapter);
     }
 
     public static class IntentBuilder {

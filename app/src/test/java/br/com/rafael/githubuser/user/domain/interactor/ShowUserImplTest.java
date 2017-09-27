@@ -27,7 +27,6 @@ public class ShowUserImplTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-
         impl = spy(
                 new ShowUserImpl(
                         Schedulers.immediate(),

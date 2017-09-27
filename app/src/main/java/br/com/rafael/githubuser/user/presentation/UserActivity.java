@@ -153,10 +153,12 @@ public class UserActivity extends BaseActivity implements HasComponent<LibraryCo
         stateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void showErrorState() {
         state.isShowingUserLoadError = true;
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
+
         if (errorView == null) {
             errorView = stateView.getView(MultiStateView.VIEW_STATE_ERROR);
         }

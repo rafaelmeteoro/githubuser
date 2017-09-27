@@ -2,26 +2,22 @@ package br.com.rafael.githubuser.followers.presentation;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
-import rx.Observable;
 
 public interface FollowersContract {
     interface View {
+        void showLoadingState();
+
+        void showEmptyState();
+
+        void showErrorState();
+
+        void showContentState();
+
         void showFollowers(FollowersViewModelHolder holder);
-
-        void showFollowersLoading();
-
-        void showFollowersError();
-
-        Observable<String> onRetryClicked();
-
-        Observable<State> onSaveState();
-
-        void saveState(@NonNull State state);
     }
 
     interface Presenter {
@@ -34,6 +30,7 @@ public interface FollowersContract {
     class State implements Parcelable {
 
         public FollowersViewModelHolder holder;
+        public boolean isShowingFollowersLoadError;
 
         @Override
         public int describeContents() {

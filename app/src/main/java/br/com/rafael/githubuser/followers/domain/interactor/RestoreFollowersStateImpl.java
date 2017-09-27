@@ -11,17 +11,35 @@ import rx.Scheduler;
 public class RestoreFollowersStateImpl implements RestoreFollowersState {
 
     private Scheduler uiScheduler;
+    private FollowersContract.View view;
 
     @Inject
-    public RestoreFollowersStateImpl(@UIScheduler Scheduler uiScheduler) {
+    public RestoreFollowersStateImpl(@UIScheduler Scheduler uiScheduler,
+                                     FollowersContract.View view) {
         this.uiScheduler = uiScheduler;
+        this.view = view;
     }
 
     @Override
-    public Observable<FollowersViewModelHolder> call(Observable<FollowersContract.State> observable) {
+    public Observable<FollowersContract.State> call(Observable<FollowersContract.State> observable) {
         return observable
                 .subscribeOn(uiScheduler)
                 .observeOn(uiScheduler)
-                .map(state -> state.holder);
+                .doOnNext(this::showFollowersIfNotEmptyOrError);
+    }
+
+    private void showFollowersIfNotEmptyOrError(FollowersContract.State state) {
+        if (state.isShowingFollowersLoadError) {
+            view.showErrorState();
+        } else if (isEmpty(state.holder)) {
+            view.showEmptyState();
+        } else {
+            view.showContentState();
+            view.showFollowers(state.holder);
+        }
+    }
+
+    private boolean isEmpty(FollowersViewModelHolder holder) {
+        return holder == null || holder.getViewModels() == null || holder.getViewModels().isEmpty();
     }
 }
