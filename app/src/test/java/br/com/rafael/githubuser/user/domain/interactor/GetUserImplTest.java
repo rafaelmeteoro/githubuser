@@ -11,14 +11,13 @@ import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class GetUserImplTest {
-
-    GetUser useCase;
 
     @Mock
     GithubUserRepository githubUserRepository;
@@ -26,25 +25,36 @@ public class GetUserImplTest {
     @Mock
     GithubUser githubUser;
 
+    GetUser impl;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        useCase = new GetUserImpl(
-                Schedulers.immediate(),
-                Schedulers.immediate(),
-                githubUserRepository);
+        impl = spy(
+                new GetUserImpl(
+                        Schedulers.immediate(),
+                        Schedulers.immediate(),
+                        githubUserRepository)
+        );
     }
 
     @Test
-    public void getUser() throws Exception {
+    public void onCall_shouldReturnUser() {
+        String username = "username";
+
         when(githubUserRepository.getUser(any()))
                 .thenReturn(Observable.just(githubUser));
 
         TestSubscriber<GithubUser> subscriber = new TestSubscriber<>();
-        useCase.getUser(any()).subscribe(subscriber);
+
+        Observable.just(username)
+                .compose(impl)
+                .subscribe(subscriber);
 
         subscriber.assertNoErrors();
 
-        assertThat(subscriber.getOnNextEvents().get(0), is(githubUser));
+        GithubUser result = subscriber.getOnNextEvents().get(0);
+
+        assertThat(result, sameInstance(githubUser));
     }
 }

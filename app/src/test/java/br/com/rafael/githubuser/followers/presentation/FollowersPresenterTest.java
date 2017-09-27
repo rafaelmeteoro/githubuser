@@ -2,17 +2,18 @@ package br.com.rafael.githubuser.followers.presentation;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import br.com.rafael.githubuser.core.client.exception.RetrofitException;
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
-import br.com.rafael.githubuser.followers.domain.interactor.GetFollowers;
+import br.com.rafael.githubuser.followers.presentation.coordinator.FollowersCoordinator;
+import br.com.rafael.githubuser.followers.presentation.coordinator.FollowersRestoreStateCoordinator;
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
 import rx.Observable;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,13 +21,19 @@ import static org.mockito.Mockito.when;
 public class FollowersPresenterTest {
 
     @Mock
-    GetFollowers getFollowers;
+    FollowersCoordinator followersCoordinator;
 
     @Mock
-    FollowersContract.View view;
+    FollowersRestoreStateCoordinator followersRestoreStateCoordinator;
 
     @Mock
     AutomaticUnsubscriber automaticUnsubscriber;
+
+    @Mock
+    FollowersViewModelHolder holder;
+
+    @Mock
+    FollowersContract.State state;
 
     FollowersContract.Presenter presenter;
 
@@ -36,39 +43,57 @@ public class FollowersPresenterTest {
 
         presenter = spy(
                 new FollowersPresenter(
-                        getFollowers,
-                        view,
+                        followersCoordinator,
+                        followersRestoreStateCoordinator,
                         automaticUnsubscriber)
         );
     }
 
     @Test
-    public void initializePresenter_shouldDisplayFollowers() {
-        when(getFollowers.getFollowers(any()))
-                .thenReturn(Observable.just(mock(FollowersViewModelHolder.class)));
+    public void initializePresenter_shouldCallCoordinatorsInOrder() {
+        when(followersCoordinator.call(any()))
+                .thenReturn(Observable.just(holder));
+
+        InOrder callOrder = inOrder(
+                followersCoordinator
+        );
 
         presenter.initialize(any());
 
-        verify(view).showFollowersLoading();
-        verify(view).showFollowers(any());
+        callOrder.verify(followersCoordinator).call(any());
     }
 
     @Test
-    public void initializePresenter_shouldDisplayError() {
-        when(getFollowers.getFollowers(any()))
-                .thenReturn(Observable.error(mock(RetrofitException.class)));
+    public void initializePresenter_shouldAddSubscriptionsToAutomaticUnsubscriber() {
+        when(followersCoordinator.call(any()))
+                .thenReturn(Observable.just(holder));
 
         presenter.initialize(any());
 
-        verify(view).showFollowersLoading();
-        verify(view).showFollowersError();
+        verify(automaticUnsubscriber).add(any());
     }
 
     @Test
-    public void initializeFromStatePresenter_shouldDisplayFollowers() {
+    public void initializeFromStatePresenter_shouldCAllCoordinatorsInOrder() {
+        when(followersRestoreStateCoordinator.call(any()))
+                .thenReturn(Observable.just(state));
+
+        InOrder callOrder = inOrder(
+                followersRestoreStateCoordinator
+        );
 
         presenter.initializeFromState(any());
 
-        verify(view).showFollowers(any());
+        callOrder.verify(followersRestoreStateCoordinator).call(any());
+    }
+
+    @Test
+    public void initializeFromStatePresenter_shouldAddSubscriptionsToAutomaticUnsubscriber() {
+        when(followersRestoreStateCoordinator.call(any()))
+                .thenReturn(Observable.just(state));
+
+        presenter.initializeFromState(any());
+
+        verify(automaticUnsubscriber).add(any());
     }
 }

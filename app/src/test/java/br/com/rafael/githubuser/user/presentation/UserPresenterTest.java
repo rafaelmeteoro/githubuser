@@ -2,17 +2,19 @@ package br.com.rafael.githubuser.user.presentation;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import br.com.rafael.githubuser.core.client.exception.RetrofitException;
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
 import br.com.rafael.githubuser.user.data.models.GithubUser;
-import br.com.rafael.githubuser.user.domain.interactor.GetUser;
+import br.com.rafael.githubuser.user.presentation.coordinator.ClickFollowersCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.RestoreStateCoordinator;
+import br.com.rafael.githubuser.user.presentation.coordinator.UserCoordinator;
 import rx.Observable;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,13 +22,22 @@ import static org.mockito.Mockito.when;
 public class UserPresenterTest {
 
     @Mock
-    GetUser getUser;
+    UserCoordinator userCoordinator;
 
     @Mock
-    UserContract.View view;
+    RestoreStateCoordinator restoreStateCoordinator;
+
+    @Mock
+    ClickFollowersCoordinator clickFollowersCoordinator;
 
     @Mock
     AutomaticUnsubscriber automaticUnsubscriber;
+
+    @Mock
+    GithubUser githubUser;
+
+    @Mock
+    UserContract.State state;
 
     UserContract.Presenter presenter;
 
@@ -36,56 +47,86 @@ public class UserPresenterTest {
 
         presenter = spy(
                 new UserPresenter(
-                        getUser,
-                        view,
+                        userCoordinator,
+                        restoreStateCoordinator,
+                        clickFollowersCoordinator,
                         automaticUnsubscriber)
         );
     }
 
     @Test
-    public void initializePresenter_shouldDisplayUser() {
-        when(getUser.getUser(any()))
-                .thenReturn(Observable.just(mock(GithubUser.class)));
+    public void initializePresenter_shouldCAllCoordinatorsInOrder() {
+        when(userCoordinator.call(any()))
+                .thenReturn(Observable.just(githubUser));
+
+        InOrder callOrder = inOrder(
+                userCoordinator
+        );
 
         presenter.initialize(any());
 
-        verify(view).showUserLoading();
-        verify(view).showUser();
-        verify(view).setUser(any());
-        verify(view).showPhoto(any());
-        verify(view).showLogin(any());
-        verify(view).showName(any());
-        verify(view).showLocation(any());
+        callOrder.verify(userCoordinator).call(any());
     }
 
     @Test
-    public void initializePresenter_shouldDisplayError() {
-        when(getUser.getUser(any()))
-                .thenReturn(Observable.error(mock(RetrofitException.class)));
+    public void initializePresenter_shouldAddSubscriptionsToAutomaticUnsubscriber() {
+        when(userCoordinator.call(any()))
+                .thenReturn(Observable.just(githubUser));
 
         presenter.initialize(any());
 
-        verify(view).showUserLoading();
-        verify(view).showUserError();
+        verify(automaticUnsubscriber).add(any());
     }
 
     @Test
-    public void initializeFromStatePresenter_shouldDisplayUser() {
-        presenter.initializeFromState(githubUser());
+    public void initializeFromStatePresenter_shouldCallCoordinatorsInOrder() {
+        when(restoreStateCoordinator.call(any()))
+                .thenReturn(Observable.just(state));
 
-        verify(view).showUser();
-        verify(view).setUser(any());
-        verify(view).showPhoto(any());
-        verify(view).showLogin(any());
-        verify(view).showName(any());
-        verify(view).showLocation(any());
+        InOrder callOrder = inOrder(
+                restoreStateCoordinator
+        );
+
+        presenter.initializeFromState(any());
+
+        callOrder.verify(restoreStateCoordinator).call(any());
     }
 
-    private GithubUser githubUser() {
-        return new GithubUser()
-                .avatarUrl("avatar_url")
-                .login("login")
-                .name("name")
-                .location("location");
+    @Test
+    public void initializeFromStatePresenter_shouldAddSubscriptionsToAutomaticUnsubscriber() {
+        when(restoreStateCoordinator.call(any()))
+                .thenReturn(Observable.just(state));
+
+        presenter.initializeFromState(any());
+
+        verify(automaticUnsubscriber).add(any());
+    }
+
+    @Test
+    public void clickFollowers_shouldCAllCoordinatorsInOrder() {
+        String username = "username";
+
+        when(clickFollowersCoordinator.call(any()))
+                .thenReturn(Observable.just(username));
+
+        InOrder callOrder = inOrder(
+                clickFollowersCoordinator
+        );
+
+        presenter.clickFollowers(username);
+
+        callOrder.verify(clickFollowersCoordinator).call(any());
+    }
+
+    @Test
+    public void clickFollowers_shouldAddSubscriptionsToAutomaticUnsubscriber() {
+        String username = "username";
+
+        when(clickFollowersCoordinator.call(any()))
+                .thenReturn(Observable.just(username));
+
+        presenter.clickFollowers(username);
+
+        verify(automaticUnsubscriber).add(any());
     }
 }

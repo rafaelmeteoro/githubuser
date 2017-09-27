@@ -25,7 +25,12 @@ public class GetUserImpl implements GetUser {
     }
 
     @Override
-    public Observable<GithubUser> getUser(String username) {
+    public Observable<GithubUser> call(Observable<String> observable) {
+        return observable
+                .flatMap(this::getUserFromRepository);
+    }
+
+    private Observable<GithubUser> getUserFromRepository(String username) {
         return githubUserRepository.getUser(username)
                 .observeOn(uiScheduler)
                 .subscribeOn(ioScheduler);

@@ -18,26 +18,31 @@ import rx.schedulers.Schedulers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class GetFollowersImplTest {
 
-    GetFollowers useCase;
-
     @Mock
     GithubFollowerRepository githubFollowerRepository;
+
+    GetFollowers impl;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        useCase = new GetFollowersImpl(
-                Schedulers.immediate(),
-                Schedulers.immediate(),
-                githubFollowerRepository);
+        impl = spy(
+                new GetFollowersImpl(
+                        Schedulers.immediate(),
+                        Schedulers.immediate(),
+                        githubFollowerRepository)
+        );
     }
 
     @Test
-    public void getFollowers() throws Exception {
+    public void onCall_shouldReturnHolder() {
+        String username = "username";
+
         int expectedSize = 10;
         List<Follower> expectedList = createFollowers(expectedSize);
 
@@ -45,11 +50,15 @@ public class GetFollowersImplTest {
                 .thenReturn(Observable.just(expectedList));
 
         TestSubscriber<FollowersViewModelHolder> subscriber = new TestSubscriber<>();
-        useCase.getFollowers(any()).subscribe(subscriber);
+
+        Observable.just(username)
+                .compose(impl)
+                .subscribe(subscriber);
 
         subscriber.assertNoErrors();
 
         FollowersViewModelHolder holder = subscriber.getOnNextEvents().get(0);
+
         assertThat(holder.getViewModels().size(), is(expectedSize));
     }
 

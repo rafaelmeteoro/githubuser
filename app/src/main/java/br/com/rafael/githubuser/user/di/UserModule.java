@@ -5,8 +5,16 @@ import android.arch.lifecycle.LifecycleOwner;
 import br.com.rafael.githubuser.core.di.PerActivity;
 import br.com.rafael.githubuser.core.lifecycle.AutomaticUnsubscriber;
 import br.com.rafael.githubuser.core.lifecycle.LifecycleUnsubscriber;
+import br.com.rafael.githubuser.user.domain.interactor.ClickFollowers;
+import br.com.rafael.githubuser.user.domain.interactor.ClickFollowersImpl;
 import br.com.rafael.githubuser.user.domain.interactor.GetUser;
 import br.com.rafael.githubuser.user.domain.interactor.GetUserImpl;
+import br.com.rafael.githubuser.user.domain.interactor.RestoreUserState;
+import br.com.rafael.githubuser.user.domain.interactor.RestoreUserStateImpl;
+import br.com.rafael.githubuser.user.domain.interactor.ShowLoadingUser;
+import br.com.rafael.githubuser.user.domain.interactor.ShowLoadingUserImpl;
+import br.com.rafael.githubuser.user.domain.interactor.ShowUser;
+import br.com.rafael.githubuser.user.domain.interactor.ShowUserImpl;
 import br.com.rafael.githubuser.user.presentation.UserActivity;
 import br.com.rafael.githubuser.user.presentation.UserContract;
 import br.com.rafael.githubuser.user.presentation.UserPresenter;
@@ -48,7 +56,31 @@ public class UserModule {
 
     @Provides
     @PerActivity
+    ShowLoadingUser showLoadingUser(ShowLoadingUserImpl impl) {
+        return impl;
+    }
+
+    @Provides
+    @PerActivity
     GetUser getUser(GetUserImpl impl) {
+        return impl;
+    }
+
+    @Provides
+    @PerActivity
+    ShowUser showUser(ShowUserImpl impl) {
+        return impl;
+    }
+
+    @Provides
+    @PerActivity
+    ClickFollowers clickFollowers(ClickFollowersImpl impl) {
+        return impl;
+    }
+
+    @Provides
+    @PerActivity
+    RestoreUserState restoreUserState(RestoreUserStateImpl impl) {
         return impl;
     }
 }

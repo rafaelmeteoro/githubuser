@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.kennyc.view.MultiStateView;
 
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 
 import br.com.rafael.githubuser.R;
 import br.com.rafael.githubuser.application.GithubUserApplication;
+import br.com.rafael.githubuser.core.di.HasComponent;
 import br.com.rafael.githubuser.core.view.BaseActivity;
 import br.com.rafael.githubuser.followers.di.DaggerFollowersComponent;
 import br.com.rafael.githubuser.followers.di.FollowersModule;
@@ -26,12 +28,13 @@ import br.com.rafael.githubuser.followers.presentation.data.RightFollowerClickDa
 import br.com.rafael.githubuser.followers.presentation.listener.OnLeftFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.listener.OnRightFollowerClickListener;
 import br.com.rafael.githubuser.followers.presentation.viewmodel.FollowersViewModelHolder;
+import br.com.rafael.githubuser.library.di.LibraryComponent;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import icepick.State;
 
-public class FollowersActivity extends BaseActivity implements FollowersContract.View {
+public class FollowersActivity extends BaseActivity implements HasComponent<LibraryComponent>, FollowersContract.View {
 
+    private static final String KEY_STATE = "state";
     private static final String KEY_USERNAME = "key_username";
 
     @BindView(R.id.toolbar)
@@ -43,14 +46,15 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
+    View errorView;
+
     @Inject
     FollowersContract.Presenter presenter;
 
     @Inject
     FollowersAdapter adapter;
 
-    @State
-    FollowersViewModelHolder holder;
+    FollowersContract.State state = new FollowersContract.State();
 
     private OnLeftFollowerClickListener onLeftFollowerClickListener =
             this::handleLeftFollowerClick;
@@ -68,6 +72,12 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(data.url()));
         startActivity(intent);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(KEY_STATE, state);
     }
 
     @Override
@@ -95,7 +105,7 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
     private void inject() {
         DaggerFollowersComponent
                 .builder()
-                .libraryComponent(GithubUserApplication.get(this).getComponent())
+                .libraryComponent(getComponent())
                 .followersModule(new FollowersModule(this))
                 .build()
                 .inject(this);
@@ -113,11 +123,17 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
         boolean shouldInitializeFromState = savedState != null;
 
         if (shouldInitializeFromState) {
-            presenter.initializeFromState(holder);
+            state = savedState.getParcelable(KEY_STATE);
+            presenter.initializeFromState(state);
         } else {
             String username = getIntent().getStringExtra(KEY_USERNAME);
             presenter.initialize(username);
         }
+    }
+
+    @Override
+    public LibraryComponent getComponent() {
+        return GithubUserApplication.get(this).getComponent();
     }
 
     @Override
@@ -130,22 +146,43 @@ public class FollowersActivity extends BaseActivity implements FollowersContract
     }
 
     @Override
-    public void showFollowers(FollowersViewModelHolder holder) {
-        this.holder = holder;
-
-        stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
-        adapter.setData(holder);
-        recyclerView.setAdapter(adapter);
-    }
-
-    @Override
-    public void showFollowersLoading() {
+    public void showLoadingState() {
+        state.isShowingFollowersLoadError = false;
         stateView.setViewState(MultiStateView.VIEW_STATE_LOADING);
     }
 
     @Override
-    public void showFollowersError() {
+    public void showEmptyState() {
+        state.isShowingFollowersLoadError = false;
+        stateView.setViewState(MultiStateView.VIEW_STATE_EMPTY);
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void showErrorState() {
+        state.isShowingFollowersLoadError = true;
         stateView.setViewState(MultiStateView.VIEW_STATE_ERROR);
+
+        if (errorView == null) {
+            errorView = stateView.getView(MultiStateView.VIEW_STATE_ERROR);
+        }
+
+        errorView.setOnClickListener(view ->
+                presenter.initialize(getIntent().getStringExtra(KEY_USERNAME)));
+    }
+
+    @Override
+    public void showContentState() {
+        stateView.setViewState(MultiStateView.VIEW_STATE_CONTENT);
+    }
+
+    @Override
+    public void showFollowers(FollowersViewModelHolder holder) {
+        state.isShowingFollowersLoadError = false;
+        state.holder = holder;
+
+        adapter.setData(holder);
+        recyclerView.setAdapter(adapter);
     }
 
     public static class IntentBuilder {
