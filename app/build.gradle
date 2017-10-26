@@ -1,13 +1,11 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.jakewharton.butterknife'
-apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.getkeepsafe.dexcount'
 apply plugin: 'project-report'
 
 android {
 
     compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "br.com.rafael.githubuser"
@@ -40,65 +38,65 @@ android {
 
 dependencies {
     // Support Libraries
-    compile deps.appCompat
-    compile deps.cardViewCompat
-    compile deps.designCompat
-    compile deps.supportAnnotations
-    compile deps.multidex
-    compile deps.constraintLayout
-    compile deps.lifecycleRuntime
-    compile deps.lifecycleExtensions
+    implementation deps.appCompat
+    implementation deps.cardViewCompat
+    implementation deps.designCompat
+    implementation deps.supportAnnotations
+    implementation deps.multidex
+    implementation deps.constraintLayout
+    implementation deps.lifecycleRuntime
+    implementation deps.lifecycleExtensions
     annotationProcessor deps.lifecycleAnnotations
 
     // Rx Libraries
-    compile deps.rxJava
-    compile deps.rxAndroid
-    compile deps.rxBinding
+    implementation deps.rxJava
+    implementation deps.rxAndroid
+    implementation deps.rxBinding
 
     // Annotations Libraries
-    provided deps.lombok
+    compileOnly deps.lombok
     annotationProcessor deps.lombok
 
     // Networking
-    compile deps.retrofit2
-    compile deps.gsonConverter
-    compile deps.rxJavaAdapter
-    compile deps.logInterceptor
+    implementation deps.retrofit2
+    implementation deps.gsonConverter
+    implementation deps.rxJavaAdapter
+    implementation deps.logInterceptor
 
-    compile deps.butterKnife
+    implementation deps.butterKnife
     annotationProcessor deps.butterKnifeCompiler
 
-    compile deps.dagger
+    implementation deps.dagger
     annotationProcessor deps.daggerCompiler
 
-    compile deps.icePick
-    provided deps.icePickProcessor
+    implementation deps.icePick
+    annotationProcessor deps.icePickProcessor
 
     // Image Libraries
-    compile deps.picasso
+    implementation deps.picasso
 
     // UI Libraries
-    compile deps.multiStateView
+    implementation deps.multiStateView
 
-    compile deps.parcelPlease
+    implementation deps.parcelPlease
     annotationProcessor deps.parcelPleaseProcessor
 
     // Statistics Libraries
-    debugCompile deps.leakCanary
-    releaseCompile deps.leakCanary
-    testCompile deps.leakCanary
+    debugImplementation deps.leakCanary
+    releaseImplementation deps.leakCanary
+    testImplementation deps.leakCanary
 
     // Test Libraries
-    androidTestCompile(deps.espresso) {
+    androidTestImplementation(deps.espresso) {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    androidTestCompile(deps.runner) {
+    androidTestImplementation(deps.runner) {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-//    androidTestCompile(deps.supportAnnotations) {
+//    androidTestImplementation(deps.supportAnnotations) {
 //        exclude group: 'com.android.support', module: 'support-annotations'
 //    }
-    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-contrib:2.2.2', {
         exclude group: 'com.android.support', module: 'appcompat'
         exclude group: 'com.android.support', module: 'appcompat-v7'
         exclude group: 'com.android.support', module: 'support-v4'
@@ -107,17 +105,17 @@ dependencies {
         exclude group: 'com.android.support', module: 'design'
     })
 
-    testCompile deps.jUnit
-    androidTestCompile(deps.jUnit) {
+    testImplementation deps.jUnit
+    androidTestImplementation(deps.jUnit) {
         exclude module: 'hamcrest-core'
     }
 
-    testCompile deps.mockito
-    androidTestCompile deps.mockito
-    compile deps.javaxInject
+    testImplementation deps.mockito
+    androidTestImplementation deps.mockito
+    implementation deps.javaxInject
 
     testAnnotationProcessor deps.dagger
 
-    testCompile deps.hamcrest
-    testCompile deps.nitorMatchers
+    testImplementation deps.hamcrest
+    testImplementation deps.nitorMatchers
 }
